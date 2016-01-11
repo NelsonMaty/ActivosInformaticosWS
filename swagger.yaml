@@ -1,0 +1,221 @@
+---
+swagger: "2.0"
+info:
+  description: "Gestor de activos informáticos"
+  version: "1.0.0"
+  title: "Activos Informáticos Web Services"
+host: "localhost:8080"
+basePath: "/v1"
+schemes:
+- "http"
+produces:
+- "application/json"
+paths:
+  /users:
+    get:
+      tags:
+      - "User"
+      summary: "Consulta de usuarios"
+      description: "Listado de todos los usuarios autorizados a utlizar el servicio"
+      operationId: "usersGet"
+      parameters: []
+      responses:
+        200:
+          description: "Listado de usuarios"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/User"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Error"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+    post:
+      tags:
+      - "User"
+      summary: "Crear usuario"
+      description: "Dar de alta un usario dandole asi permiso para utlizar el servicio"
+      operationId: "usersPost"
+      parameters:
+        - name: user
+          in: body
+          description: Usuario a dar de alta en el sistema
+          required: true
+          schema:
+            $ref: '#/definitions/NewUser'
+      responses:
+        201:
+          description: "Usuario creado"
+          # schema:
+          #   type: "array"
+          #   items:
+          #     $ref: "#/definitions/User"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Error"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+    x-swagger-router-controller: "User"
+  /users/{id}:
+    get:
+      tags:
+      - "User"
+      summary: "Usuario"
+      description: "Usuario por identificador\n"
+      operationId: "usersIdGet"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "identificador del usuario."
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Usuario por id."
+          schema:
+            $ref: "#/definitions/User"
+        404:
+          description: "Recurso no encontrado"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Error"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+    put:
+      tags:
+      - "User"
+      summary: "Usuario"
+      description: "Usuario por identificador\n"
+      operationId: "usersIdPut"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "identificador del usuario."
+        required: true
+        type: "string"
+      - name: user
+        in: body
+        description: Datos de usuario para actualizar
+        required: true
+        schema:
+          $ref: '#/definitions/UpdateUser'
+      responses:
+        204:
+          description: "Usuario actualizado."
+          # schema:
+          #   $ref: "#/definitions/User"
+        404:
+          description: "Recurso no encontrado"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Error"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+    delete:
+      tags:
+      - "User"
+      summary: "Usuario"
+      description: "Usuario por identificador\n"
+      operationId: "usersIdDelete"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "identificador del usuario."
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Usuario borrado."
+          # schema:
+            # $ref: "#/definitions/User"
+        404:
+          description: "Recurso no encontrado"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Error"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+    x-swagger-router-controller: "User"
+definitions:
+  Hypermedia:
+    type: "object"
+    properties:
+      rel:
+        type: "string"
+        description: "Nombre del recurso con el que se relaciona"
+      href:
+        type: "string"
+        description: "URL de referencia al recurso"
+  User:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "identificador único del usuario."
+      name:
+        type: "string"
+        description: "Nombre de usuario."
+      comment:
+        type: "string"
+        description: "Comentario acerca del usuario."
+      deleted:
+        type: "boolean"
+        description: "Indica si se trata de un usuario ya eliminado o no."
+      links:
+        type: "array"
+        description: "Listado de vínculos a recursos"
+        items:
+          $ref: "#/definitions/Hypermedia"
+  NewUser:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        description: "Nombre de usuario."
+      comment:
+        type: "string"
+        description: "Comentario acerca del usuario."
+  UpdateUser:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        description: "Nombre de usuario."
+      comment:
+        type: "string"
+        description: "Comentario acerca del usuario."
+      deleted:
+        type: "boolean"
+        description: "Indica si se trata de un usuario ya eliminado o no."
+  Error:
+    type: "object"
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
+      message:
+        type: "string"
+      fields:
+        type: "string"
