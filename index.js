@@ -5,6 +5,10 @@ var http = require('http');
 var swaggerTools = require('swagger-tools');
 var jsyaml = require('js-yaml');
 var fs = require('fs');
+
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://admin:5fXR8hf28yEl@127.9.237.2:27017');
+
 var serverPort = 8080;
 
 // swaggerRouter configuration
