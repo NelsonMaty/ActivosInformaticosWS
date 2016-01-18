@@ -11,6 +11,46 @@ schemes:
 produces:
 - "application/json"
 paths:
+  /assets/types:
+    get:
+      tags:
+      - "AssetType"
+      summary: "Consulta de tipos de activos informáticos"
+      description: "Listado de todos los tipos de activos informáticos disponibles"
+      operationId: "assetTypeGet"
+      parameters: []
+      responses:
+        200:
+          description: "Listado de tipos de activos"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/AssetType"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Error"
+    post:
+      tags:
+      - "AssetType"
+      summary: "Crear tipo de activo"
+      description: "Dar de alta un nuevo tipo de activo informático"
+      operationId: "assetTypePost"
+      parameters:
+      - in: "body"
+        name: "assetType"
+        description: "Tipo de activo informático a dar de alta en el sistema"
+        required: true
+        schema:
+          $ref: "#/definitions/NewAssetType"
+      responses:
+        201:
+          description: "Tipo de activo creado"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Error"
+    x-swagger-router-controller: "AssetType"
   /users:
     get:
       tags:
@@ -28,10 +68,6 @@ paths:
               $ref: "#/definitions/User"
         500:
           description: "Error interno del servidor"
-          schema:
-            $ref: "#/definitions/Error"
-        default:
-          description: "Unexpected error"
           schema:
             $ref: "#/definitions/Error"
     post:
@@ -52,10 +88,6 @@ paths:
           description: "Usuario creado"
         500:
           description: "Error interno del servidor"
-          schema:
-            $ref: "#/definitions/Error"
-        default:
-          description: "Unexpected error"
           schema:
             $ref: "#/definitions/Error"
     x-swagger-router-controller: "User"
@@ -83,10 +115,6 @@ paths:
             $ref: "#/definitions/Error"
         500:
           description: "Error interno del servidor"
-          schema:
-            $ref: "#/definitions/Error"
-        default:
-          description: "Unexpected error"
           schema:
             $ref: "#/definitions/Error"
     put:
@@ -118,10 +146,6 @@ paths:
           description: "Error interno del servidor"
           schema:
             $ref: "#/definitions/Error"
-        default:
-          description: "Unexpected error"
-          schema:
-            $ref: "#/definitions/Error"
     delete:
       tags:
       - "User"
@@ -143,10 +167,6 @@ paths:
             $ref: "#/definitions/Error"
         500:
           description: "Error interno del servidor"
-          schema:
-            $ref: "#/definitions/Error"
-        default:
-          description: "Unexpected error"
           schema:
             $ref: "#/definitions/Error"
     x-swagger-router-controller: "User"
@@ -201,6 +221,31 @@ definitions:
       deleted:
         type: "boolean"
         description: "Indica si se trata de un usuario ya eliminado o no."
+  AssetType:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "identificador único del tipo de activo."
+      name:
+        type: "string"
+        description: "Nombre del tipo de activo."
+      fields:
+        type: "array"
+        description: "Listado de atributos que definen al tipo de activo"
+        items:
+          $ref: "#/definitions/AssetType_fields"
+  NewAssetType:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        description: "Nombre del tipo de activo."
+      fields:
+        type: "array"
+        description: "Listado de atributos que definen al tipo de activo"
+        items:
+          $ref: "#/definitions/AssetType_fields"
   Error:
     type: "object"
     properties:
@@ -211,3 +256,11 @@ definitions:
         type: "string"
       fields:
         type: "string"
+  AssetType_fields:
+    properties:
+      name:
+        type: "string"
+        description: "Nombre del atributo"
+      type:
+        type: "string"
+        description: "Tipo de dato del atributo"
