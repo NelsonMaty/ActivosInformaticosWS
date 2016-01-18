@@ -1,5 +1,8 @@
 'use strict';
 
+var mongoose   = require('mongoose');
+mongoose.connect('mongodb://mongo@127.0.0.1:27017');
+
 var app = require('connect')();
 var http = require('http');
 var swaggerTools = require('swagger-tools');

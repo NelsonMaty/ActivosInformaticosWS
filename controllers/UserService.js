@@ -1,6 +1,5 @@
 'use strict';
 
-// var User     = require('../models/user');
 var User  = require('../models/User');
 
 exports.usersGet = function(args, res, next) {
@@ -33,8 +32,8 @@ exports.usersPost = function(args, res, next) {
       res.send(err);
     else {
       res.setHeader('Content-Type', 'application/json');
-      console.log(newUser);
-      res.end(null, 201);
+      res.statusCode = 201;
+      res.end(null);
     }
   })
 }
@@ -44,43 +43,44 @@ exports.usersIdGet = function(args, res, next) {
   * id (String)
   **/
 
-  var examples = {};
-
-  examples['application/json'] = {
-    "deleted" : true,
-    "name" : "aeiou",
-    "comment" : "aeiou",
-    "links" : [ {
-      "rel" : "aeiou",
-      "href" : "aeiou"
-    } ],
-    "id" : "aeiou"
-  };
-
-
-
-  if(Object.keys(examples).length > 0) {
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(examples[Object.keys(examples)[0]] || {}, null, 2));
-  }
-  else {
-    res.end();
-  }
-
+  User.findById(args.id.value, function(err, user) {
+    if (err)
+      res.end(err);
+    else{
+      if(user==null){
+        res.statusCode = 404;
+        res.end();
+      }
+      else {
+        res.end(JSON.stringify(user));
+      }
+    }
+  });
 
 }
 exports.usersIdPut = function(args, res, next) {
-  /**
-  * parameters expected in the args:
-  * id (String)
-  * user (UpdateUser)
-  **/
+  // use our bear model to find the bear we want
+  User.findById(args.id.value, function(err, user) {
 
-  var examples = {};
+    if (err)
+      res.send(err);
+    else {
+      if(!!args.user.value.name)
+        user.name = args.user.value.name;  // update the bears info
+      if(!!args.user.value.comment)
+        user.comment = args.user.value.comment;  // update the bears info
 
-
-
-  res.end();
+      // save the user
+      user.save(function(err) {
+        if (err)
+          res.send(err);
+        else {
+          res.statusCode = 204;
+          res.end();
+        }
+      });
+    }
+  });
 }
 exports.usersIdDelete = function(args, res, next) {
   /**
@@ -88,9 +88,23 @@ exports.usersIdDelete = function(args, res, next) {
   * id (String)
   **/
 
-  var examples = {};
+  User.findById(args.id.value, function(err, user) {
 
+    if (err)
+      res.send(err);
 
+    else {
+      user.deleted = true;
+      // save the user
+      user.save(function(err) {
+        if (err)
+          res.send(err);
+        else {
+          res.end(JSON.stringify(user));
+        }
+      });
+    }
+  });
 
   res.end();
 }
