@@ -1,57 +1,49 @@
----
 swagger: "2.0"
 info:
-  description: "Gestor de activos informáticos"
-  version: "1.0.0"
-  title: "Activos Informáticos Web Services"
-host: "localhost:8080"
-basePath: "/v1"
+  version: "0.0.1"
+  title: Hello World App
+# during dev, should point to your local machine
+host: localhost:10010
+# basePath prefixes all resource paths
+basePath: /
+#
 schemes:
-- "http"
+  # tip: remove http to make production-grade
+  - http
+  - https
+# format of bodies a client can send (Content-Type)
+consumes:
+  - application/json
+# format of the responses to the client (Accepts)
 produces:
-- "application/json"
+  - application/json
 paths:
-  /assets/types:
+  /hello:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: hello_world
     get:
-      tags:
-      - "AssetType"
-      summary: "Consulta de tipos de activos informáticos"
-      description: "Listado de todos los tipos de activos informáticos disponibles"
-      operationId: "assetTypeGet"
-      parameters: []
-      responses:
-        200:
-          description: "Listado de tipos de activos"
-          schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/AssetType"
-        500:
-          description: "Error interno del servidor"
-          schema:
-            $ref: "#/definitions/Error"
-    post:
-      tags:
-      - "AssetType"
-      summary: "Crear tipo de activo"
-      description: "Dar de alta un nuevo tipo de activo informático"
-      operationId: "assetTypePost"
+      description: Returns 'Hello' to the caller
+      # used as the method name of the controller
+      operationId: hello
       parameters:
-      - in: "body"
-        name: "assetType"
-        description: "Tipo de activo informático a dar de alta en el sistema"
-        required: true
-        schema:
-          $ref: "#/definitions/NewAssetType"
+        - name: name
+          in: query
+          description: The name of the person to whom to say hello
+          required: false
+          type: string
       responses:
-        201:
-          description: "Tipo de activo creado"
-        500:
-          description: "Error interno del servidor"
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/NewResource"
+        # responses may fall through to errors
+        default:
+          description: Error
           schema:
             $ref: "#/definitions/Error"
-    x-swagger-router-controller: "AssetType"
   /users:
+    x-swagger-router-controller: "User"
     get:
       tags:
       - "User"
@@ -86,12 +78,15 @@ paths:
       responses:
         201:
           description: "Usuario creado"
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/NewResource"
         500:
           description: "Error interno del servidor"
           schema:
             $ref: "#/definitions/Error"
-    x-swagger-router-controller: "User"
   /users/{id}:
+    x-swagger-router-controller: "User"
     get:
       tags:
       - "User"
@@ -169,17 +164,10 @@ paths:
           description: "Error interno del servidor"
           schema:
             $ref: "#/definitions/Error"
-    x-swagger-router-controller: "User"
+  /swagger:
+    x-swagger-pipe: swagger_raw
+# complex objects have schema definitions
 definitions:
-  Hypermedia:
-    type: "object"
-    properties:
-      rel:
-        type: "string"
-        description: "Nombre del recurso con el que se relaciona"
-      href:
-        type: "string"
-        description: "URL de referencia al recurso"
   User:
     type: "object"
     properties:
@@ -195,11 +183,15 @@ definitions:
       deleted:
         type: "boolean"
         description: "Indica si se trata de un usuario ya eliminado o no."
-      links:
-        type: "array"
-        description: "Listado de vínculos a recursos"
-        items:
-          $ref: "#/definitions/Hypermedia"
+  UpdateUser:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        description: "Comentario acerca del usuario."
+      comment:
+        type: "string"
+        description: "Comentario acerca del usuario."
   NewUser:
     type: "object"
     properties:
@@ -209,43 +201,12 @@ definitions:
       comment:
         type: "string"
         description: "Comentario acerca del usuario."
-  UpdateUser:
-    type: "object"
-    properties:
-      name:
-        type: "string"
-        description: "Nombre de usuario."
-      comment:
-        type: "string"
-        description: "Comentario acerca del usuario."
-      deleted:
-        type: "boolean"
-        description: "Indica si se trata de un usuario ya eliminado o no."
-  AssetType:
-    type: "object"
+  NewResource:
+    required:
+      - id
     properties:
       id:
-        type: "string"
-        description: "identificador único del tipo de activo."
-      name:
-        type: "string"
-        description: "Nombre del tipo de activo."
-      fields:
-        type: "array"
-        description: "Listado de atributos que definen al tipo de activo"
-        items:
-          $ref: "#/definitions/AssetType_fields"
-  NewAssetType:
-    type: "object"
-    properties:
-      name:
-        type: "string"
-        description: "Nombre del tipo de activo."
-      fields:
-        type: "array"
-        description: "Listado de atributos que definen al tipo de activo"
-        items:
-          $ref: "#/definitions/AssetType_fields"
+        type: string
   Error:
     type: "object"
     properties:
@@ -254,13 +215,3 @@ definitions:
         format: "int32"
       message:
         type: "string"
-      fields:
-        type: "string"
-  AssetType_fields:
-    properties:
-      name:
-        type: "string"
-        description: "Nombre del atributo"
-      type:
-        type: "string"
-        description: "Tipo de dato del atributo"
