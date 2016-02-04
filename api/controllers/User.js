@@ -32,7 +32,7 @@ module.exports = {
  */
 function usersGet(req, res) {
   // variables defined in the Swagger document can be referenced using req.swagger.params.{parameter_name}
-  User.find(function (err, users) {
+  User.find({'deleted':false},function (err, users) {
     if(err)
       res.status(500).json(err)
     else {
