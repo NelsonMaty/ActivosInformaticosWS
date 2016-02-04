@@ -131,8 +131,10 @@ paths:
         schema:
           $ref: "#/definitions/UpdateUser"
       responses:
-        204:
+        200:
           description: "Usuario actualizado."
+          schema:
+            $ref: "#/definitions/Error"
         404:
           description: "Recurso no encontrado"
           schema:
@@ -188,9 +190,6 @@ definitions:
   UpdateUser:
     type: "object"
     properties:
-      name:
-        type: "string"
-        description: "Comentario acerca del usuario."
       comment:
         type: "string"
         description: "Comentario acerca del usuario."

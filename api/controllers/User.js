@@ -20,7 +20,8 @@ module.exports = {
   usersGet: usersGet,
   usersPost: usersPost,
   usersIdGet: usersIdGet,
-  usersIdDelete: usersIdDelete
+  usersIdDelete: usersIdDelete,
+  usersIdPut: usersIdPut
 };
 
 /*
@@ -92,21 +93,23 @@ function usersIdPut(req, res) {
   User.findById(req.swagger.params.id.value, function(err, user) {
 
     if (err){
-      console.log(err);
-      res.send(err);
+      res.status(500).json(err);
     }
     else {
-      user.name = req.user.value.name;
-      if(!!req.user.value.comment)
-        user.comment = req.user.value.comment;  // update the bears info
+      if(!!req.body.comment)
+        user.comment = req.body.comment;  // update the bears info
 
       // save the user
       user.save(function(err) {
-        if (err)
-          res.send(err);
+        if (err){
+          res.status(500).json(err);
+        }
         else {
-          res.statusCode = 204;
-          res.end();
+          var response = {
+            code: 200,
+            message: 'Usuario actualizado con éxito'
+          }
+          res.status(200).json(response);
         }
       });
     }
