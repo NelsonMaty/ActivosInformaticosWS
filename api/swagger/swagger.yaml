@@ -156,6 +156,8 @@ paths:
       responses:
         200:
           description: "Usuario borrado."
+          schema:
+            $ref: "#/definitions/Error"
         404:
           description: "Recurso no encontrado"
           schema:

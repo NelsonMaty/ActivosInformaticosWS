@@ -19,7 +19,8 @@ var util = require('util');
 module.exports = {
   usersGet: usersGet,
   usersPost: usersPost,
-  usersIdGet: usersIdGet
+  usersIdGet: usersIdGet,
+  usersIdDelete: usersIdDelete
 };
 
 /*
@@ -48,6 +49,7 @@ function usersPost(req, res) {
   var newUser = new User()
   newUser.name = req.body.name;
   newUser.comment = req.body.comment;
+  console.log(req.body);
   newUser.deleted = false;
 
   newUser.save(function (err, user) {
@@ -94,7 +96,7 @@ function usersIdPut(req, res) {
       res.send(err);
     }
     else {
-      user.name = req.user.value.name; 
+      user.name = req.user.value.name;
       if(!!req.user.value.comment)
         user.comment = req.user.value.comment;  // update the bears info
 
@@ -119,9 +121,9 @@ function usersIdPut(req, res) {
 
   User.findById(req.swagger.params.id.value, function(err, user) {
 
-    if (err)
-      res.send(err);
-
+    if (err){
+      res.status(500).json(err);
+    }
     else {
       user.deleted = true;
       // save the user
@@ -129,11 +131,14 @@ function usersIdPut(req, res) {
         if (err)
           res.send(err);
         else {
-          res.end(JSON.stringify(user));
+          var response = {
+            code: 200,
+            message: 'Usuario eliminado con éxito'
+          }
+          res.status(200).json(response);
         }
       });
     }
   });
 
-  res.end();
 }
