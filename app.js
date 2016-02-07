@@ -5,7 +5,7 @@ var SwaggerUi = require('swagger-tools/middleware/swagger-ui');
 
 var app = require('express')();
 var mongoose   = require('mongoose');
-mongoose.connect('mongodb://mongo@127.0.0.1:27017');
+mongoose.connect('mongodb://mongo@127.0.0.1:27017/itam');
 
 module.exports = app; // for testing
 
