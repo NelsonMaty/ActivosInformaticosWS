@@ -145,7 +145,7 @@ paths:
           schema:
             $ref: "#/definitions/Notification"
   /assetTypes:
-    x-swagger-router-controller: "AssetTypes"
+    x-swagger-router-controller: "AssetType"
     get:
       tags:
       - "AssetTypes"
@@ -183,6 +183,33 @@ paths:
           schema:
             # a pointer to a definition
             $ref: "#/definitions/NewResource"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Notification"
+  /assetTypes/{id}:
+    x-swagger-router-controller: "AssetType"
+    get:
+      tags:
+      - "AssetTypes"
+      summary: "Tipo de activo"
+      description: "Tipo de activo por identificador\n"
+      operationId: "atIdGet"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "identificador del tipo de activo."
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Tipo de activo por id."
+          schema:
+            $ref: "#/definitions/AssetType"
+        404:
+          description: "Recurso no encontrado"
+          schema:
+            $ref: "#/definitions/Notification"
         500:
           description: "Error interno del servidor"
           schema:
@@ -258,6 +285,9 @@ definitions:
       type:
         type: "string"
         description: tipo de dato de la propiedad
+      comment:
+        type: "string"
+        description: breve descripcion acerca de la propiedad
   NewAssetType:
     type: "object"
     required:
