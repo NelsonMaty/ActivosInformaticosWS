@@ -144,6 +144,49 @@ paths:
           description: "Error interno del servidor"
           schema:
             $ref: "#/definitions/Notification"
+  /assetTypes:
+    x-swagger-router-controller: "AssetTypes"
+    get:
+      tags:
+      - "AssetTypes"
+      summary: "Consulta de tipos de activos informáticos"
+      description: "Listado de todos los tipos de activos informáticos disponibles"
+      operationId: "atGet"
+      parameters: []
+      responses:
+        200:
+          description: "Listado de tipos de activos"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/AssetType"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Notification"
+    post:
+      tags:
+      - "AssetTypes"
+      summary: "Crear tipo de activo"
+      description: "Definir un nuevo tipo de activo a partir del cual se instanciarán nuevos activos informáticos."
+      operationId: "atPost"
+      parameters:
+      - in: "body"
+        name: "user"
+        description: "Definicion del nuevo tipo de activo"
+        required: true
+        schema:
+          $ref: "#/definitions/NewAssetType"
+      responses:
+        201:
+          description: "Tipo de activo creado"
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/NewResource"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Notification"
   /swagger:
     x-swagger-pipe: swagger_raw
 # complex objects have schema definitions
@@ -185,7 +228,55 @@ definitions:
       comment:
         type: "string"
         description: "Comentario acerca del usuario."
+  AssetType:
+    type: "object"
+    required:
+      - _id
+      - name
+      - properties
+    properties:
+      _id:
+        type: "string"
+        description: "identificador único del tipo de activo."
+      name:
+        type: "string"
+        description: "Nombre del tipo de activo."
+      comment:
+        type: "string"
+        description: "Comentario acerca del tipo de activo."
+      properties:
+        type: "array"
+        description: "Lista de propiedades del tipo de activo."
+        items:
+          $ref: "#/definitions/Property"
+  Property:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        description: nombre de la propiedad del activo
+      type:
+        type: "string"
+        description: tipo de dato de la propiedad
+  NewAssetType:
+    type: "object"
+    required:
+      - name
+      - properties
+    properties:
+      name:
+        type: "string"
+        description: "Nombre del tipo de activo."
+      comment:
+        type: "string"
+        description: "Comentario acerca del tipo de activo."
+      properties:
+        type: "array"
+        description: "Lista de propiedades del tipo de activo."
+        items:
+          $ref: "#/definitions/Property"
   NewResource:
+    type: "object"
     required:
       - id
     properties:
