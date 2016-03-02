@@ -214,6 +214,168 @@ paths:
           description: "Error interno del servidor"
           schema:
             $ref: "#/definitions/Notification"
+  /assets:
+    x-swagger-router-controller: "Asset"
+    get:
+      tags:
+        - "Asset"
+      summary: "Consulta de activos"
+      description: "Listado de todos los activos registrados en el sistema"
+      operationId: "assetsGet"
+      parameters: []
+      responses:
+        200:
+          description: "Listado de activos"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Asset"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Notification"
+    post:
+      tags:
+        - "Asset"
+      summary: "Registrar un nuevo activo"
+      description: "Dar de alta un nuevo activo en el sistema"
+      operationId: "assetsPost"
+      parameters:
+        - in: "body"
+          name: "asset"
+          description: "Activo informático a regristrar en el sistema"
+          required: true
+          schema:
+            $ref: "#/definitions/NewAsset"
+      responses:
+        201:
+          description: "Activo creado"
+          schema:
+            $ref: "#/definitions/NewResource"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Notification"
+
+  # /assets/{type}/{id}:
+  #   x-swagger-router-controller: "Asset"
+  #   get:
+  #     tags:
+  #       - "Asset"
+  #     description: "Activo por identificador\n"
+  #     operationId: "assetsIdGet"
+  #     parameters:
+  #     - name: "id"
+  #       in: "path"
+  #       description: "identificador del activo."
+  #       required: true
+  #       type: "string"
+  #     - name: "type"
+  #       in: "path"
+  #       description: "tipo del activo."
+  #       required: true
+  #       type: "string"
+  #     responses:
+  #       200:
+  #         description: "Activo por id."
+  #         schema:
+  #           $ref: "#/definitions/Asset"
+  #       404:
+  #         description: "Recurso no encontrado"
+  #         schema:
+  #           $ref: "#/definitions/Notification"
+  #       500:
+  #         description: "Error interno del servidor"
+  #         schema:
+  #           $ref: "#/definitions/Notification"
+    # put:
+    #   tags:
+    #     - "Asset"
+    #   summary: "Actualizacion de activo"
+    #   description: "Usuario por identificador\n"
+    #   operationId: "assetsIdPut"
+    #   parameters:
+    #   - name: "id"
+    #     in: "path"
+    #     description: "identificador del activo."
+    #     required: true
+    #     type: "string"
+    #   - in: "body"
+    #     name: "user"
+    #     description: "Datos de activo para actualizar"
+    #     required: true
+    #     schema:
+    #       $ref: "#/definitions/UpdateAsset"
+    #   responses:
+    #     200:
+    #       description: "Usuario actualizado."
+    #       schema:
+    #         $ref: "#/definitions/Notification"
+    #     404:
+    #       description: "Recurso no encontrado"
+    #       schema:
+    #         $ref: "#/definitions/Notification"
+    #     500:
+    #       description: "Error interno del servidor"
+    #       schema:
+    #         $ref: "#/definitions/Notification"
+    # delete:
+    #   tags:
+    #     - "Asset"
+
+  # /assets/{type}:
+  #   x-swagger-router-controller: "Asset"
+  #   get:
+  #     tags:
+  #       - "Asset"
+  #     summary: "Consulta de activos informáticos por tipo"
+  #     description: "Listado de todos los activos informáticos pertenecientes al tipo provisto"
+  #     operationId: "assetsGetByType"
+  #     parameters:
+  #     - name: "type"
+  #       in: "path"
+  #       description: "tipo del activo."
+  #       required: true
+  #       type: "string"
+  #     responses:
+  #       200:
+  #         description: "Listado de activos"
+  #         schema:
+  #           type: "array"
+  #           items:
+  #             $ref: "#/definitions/Asset"
+  #       500:
+  #         description: "Error interno del servidor"
+  #         schema:
+  #           $ref: "#/definitions/Notification"
+  #
+  #   post:
+  #     tags:
+  #       - "Asset"
+  #     summary: "Registrar un nuevo activo"
+  #     description: "Dar de alta un nuevo activo en el sistema"
+  #     operationId: "assetsPost"
+  #     parameters:
+  #       - in: "body"
+  #         name: "asset"
+  #         description: "Activo informático a regristrar en el sistema"
+  #         required: true
+  #         schema:
+  #           $ref: "#/definitions/NewAsset"
+  #       - name: "type"
+  #         in: "path"
+  #         description: "tipo del activo."
+  #         required: true
+  #         type: "string"
+  #     responses:
+  #       201:
+  #         description: "Activo creado"
+  #         schema:
+  #           $ref: "#/definitions/NewResource"
+  #       500:
+  #         description: "Error interno del servidor"
+  #         schema:
+  #           $ref: "#/definitions/Notification"
   /swagger:
     x-swagger-pipe: swagger_raw
 # complex objects have schema definitions
@@ -288,6 +450,30 @@ definitions:
       comment:
         type: "string"
         description: breve descripcion acerca de la propiedad
+  Asset:
+    type: "object"
+    properties:
+      type:
+        type: "string"
+        description: id del tipo de activo
+      id:
+        type: "string"
+        description: "identificador único"
+      deleted:
+        type: "boolean"
+        description: "indica si el activo se encuentra borrado"
+  AssetByType:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "identificador único"
+  NewAsset:
+    type: "object"
+    properties:
+      typeId:
+        type: "string"
+        description: id del tipo de activo
   NewAssetType:
     type: "object"
     required:
