@@ -5,17 +5,18 @@ var Util = require('./Util');
 
 module.exports = {
   assetsGet: assetsGet,
-  // assetsIdGet: assetsIdGet,
-  // assetsGetByType: assetsGetByType,
-  assetsPost: assetsPost
+  assetsIdGet: assetsIdGet,
+  assetsPost: assetsPost,
+  assetsGetByType: assetsGetByType
 }
 
 function assetsGet(req, res) {
   // body...
 
   Asset.find(function (err, assets) {
-    if(err)
+    if(err){
       res.status(500).json(err);
+    }
     else {
       var response = [];
       for (var i = 0; i < assets.length; i++) {
@@ -27,32 +28,7 @@ function assetsGet(req, res) {
       res.status(200).json(response);
     }
   })
-
 }
-
-// function assetsIdGet(req, res) {
-//   // body...
-//   var asset = {
-//     type: 'harddrive',
-//     id: 'asd',
-//     asd: 'dont break'
-//   };
-//
-//   res.status(200).json(asset);
-//
-// }
-
-// function assetsGetByType(req, res) {
-//   // body...
-//   var assets = [{
-//     type: 'harddrive',
-//     id: 'asd',
-//     asd: 'dont break'
-//   }];
-//
-//   res.status(200).json(assets);
-//
-// }
 
 function assetsPost(req, res) {
   var newAsset = new Asset();
@@ -73,3 +49,63 @@ function assetsPost(req, res) {
     }
   })
 }
+
+function assetsGetByType(req, res) {
+  /**
+  * parameters expected in the req:
+  * type (String)
+  **/
+  if (req.swagger.params.typeId.value.match(/^[0-9a-fA-F]{24}$/)){
+    console.log(req.swagger.params.typeId.value);
+    Asset.find({ "value.typeId": req.swagger.params.typeId.value },function (err, assets) {
+      if(err){
+        res.status(500).json(err);
+      }
+      else {
+        var response = [];
+        for (var i = 0; i < assets.length; i++) {
+          response.push(assets[i].toJSON())
+          response[i] = Util.extend(response[i], response[i].value);
+          delete response[i].value;
+          delete response[i].assetType;
+        }
+        res.status(200).json(response);
+      }
+    })
+  }
+}
+
+function assetsIdGet(req, res) {
+  if (req.swagger.params.id.value.match(/^[0-9a-fA-F]{24}$/)){
+    Asset.findById(req.swagger.params.id.value,function (err, asset) {
+      if(err){
+        res.status(500).json(err);
+      }
+      else {
+        if(asset==null){
+          var error = {
+            code : 404,
+            message : "Activo no encontrado"
+          }
+          res.status(404).json(error)
+        }
+        else {
+          console.log(asset);
+          res.status(200).json(asset);
+        }
+      }
+    })
+  }
+}
+
+// function assetsGetByType(req, res) {
+//   // body...
+//   var assets = [{
+//     type: 'harddrive',
+//     id: 'asd',
+//     asd: 'dont break'
+//   }];
+//
+//   res.status(200).json(assets);
+//
+// }
