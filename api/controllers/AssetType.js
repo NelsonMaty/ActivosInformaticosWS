@@ -2,21 +2,16 @@
 
 var AssetType  = require('../models/AssetType');
 
-module.exports = {
-  atGet: atGet,
-  atPost: atPost,
-  atIdGet: atIdGet
-};
-
 function atGet(req, res) {
   // variables defined in the Swagger document can be referenced using req.swagger.params.{parameter_name}
   AssetType.find(function (err, ats) {
-    if(err)
+    if(err){
       res.status(500).json(err);
+    }
     else {
       res.status(200).json(ats);
     }
-  })
+  });
 }
 
 function atPost(req, res) {
@@ -25,7 +20,7 @@ function atPost(req, res) {
   * at (AssetType)
   **/
 
-  var newAT = new AssetType()
+  var newAT = new AssetType();
   newAT.name = req.body.name;
   newAT.comment = req.body.comment;
   newAT.properties = req.body.properties;
@@ -40,7 +35,7 @@ function atPost(req, res) {
       res.location('/assetTypes/' + at.id);
       res.status(201).json(response);
     }
-  })
+  });
 }
 
 function atIdGet(req, res) {
@@ -55,12 +50,12 @@ function atIdGet(req, res) {
         res.status(500).json(err);
       }
       else{
-        if(at==null){
+        if(at===null){
           var error = {
             code : 404,
             message : "Tipo de activo no encontrado"
-          }
-          res.status(404).json(error)
+          };
+          res.status(404).json(error);
         }
         else {
           res.status(200).json(at);
@@ -72,8 +67,14 @@ function atIdGet(req, res) {
     var error = {
       code : 404,
       message : "Tipo de activo no encontrada"
-    }
-    res.status(404).json(error)
+    };
+    res.status(404).json(error);
   }
 
 }
+
+module.exports = {
+  atGet: atGet,
+  atPost: atPost,
+  atIdGet: atIdGet
+};
