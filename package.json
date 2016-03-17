@@ -10,6 +10,7 @@
   "dependencies": {
     "express": "^4.12.3",
     "mongoose": "4.3.7",
+    "open": "0.0.5",
     "swagger-express-mw": "^0.1.0",
     "swagger-tools": "^0.9.11"
   },
@@ -20,5 +21,22 @@
   "scripts": {
     "start": "node app.js",
     "test": "swagger project test"
+  },
+  "jshintConfig": {
+    "globals": {
+      "$": false,
+      "angular": false
+    },
+    "camelcase": true,
+    "curly": true,
+    "freeze": true,
+    "indent": 2,
+    "latedef": true,
+    "laxcomma": true,
+    "node": true,
+    "trailing": true,
+    "strict": true,
+    "unused": "vars",
+    "undef": true
   }
 }
