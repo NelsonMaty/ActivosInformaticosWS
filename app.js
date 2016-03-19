@@ -7,8 +7,6 @@ var app = require('express')();
 var mongoose   = require('mongoose');
 mongoose.connect('mongodb://mongo@127.0.0.1:27017/itam');
 
-var open = require('open');
-
 module.exports = app; // for testing
 
 var config = {
@@ -28,6 +26,5 @@ SwaggerExpress.create(config, function(err, swaggerExpress) {
   app.listen(port);
   console.log("Corriendo web service para activos informáticos.");
   console.log("Documentación de la API disponible en http://localhost:10010/docs/");
-  open('http://localhost:10010/docs/');
 
 });
