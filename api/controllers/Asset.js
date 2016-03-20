@@ -11,7 +11,7 @@ var notFoundMessage = {
 function assetsGet(req, res) {
   // body...
 
-  Asset.find({erased:false}, function (err, assets) {
+  Asset.find({deleted:false}, function (err, assets) {
     if(err){
       res.status(500).json(err);
     }
@@ -103,7 +103,7 @@ function assetIdDelete(req, res) {
           res.status(404).json(notFoundMessage);
         }
         else{
-          asset.erased = true;
+          asset.deleted = true;
           // save the asset
           asset.save(function(err) {
             if (err){
@@ -134,7 +134,6 @@ function assetIdPut(req, res) {
         }
         else{
 
-          asset.erased = true;
           // save the asset
           asset.save(function(err) {
             if (err){
