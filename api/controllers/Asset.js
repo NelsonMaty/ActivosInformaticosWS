@@ -93,7 +93,6 @@ function assetsIdGet(req, res) {
 }
 
 function assetIdDelete(req, res) {
-  // body...
   if (req.swagger.params.id.value.match(/^[0-9a-fA-F]{24}$/)) {
     Asset.findById(req.swagger.params.id.value, function(err, asset) {
       if (err){
@@ -117,27 +116,48 @@ function assetIdDelete(req, res) {
         }
       }
     });
+
   } else {
     res.status(404).json(notFoundMessage);
   }
 }
+
+function assetIdPut(req, res) {
+  if (req.swagger.params.id.value.match(/^[0-9a-fA-F]{24}$/)) {
+    Asset.findById(req.swagger.params.id.value, function(err, asset) {
+      if (err){
+        res.status(500).json(err);
+      }
+      else {
+        if(asset===null){
+          res.status(404).json(notFoundMessage);
+        }
+        else{
+
+          asset.erased = true;
+          // save the asset
+          asset.save(function(err) {
+            if (err){
+              res.status(404).json(notFoundMessage);
+            } else {
+              var response = {code:200, message:"El activo se ha eliminado correctamente."};
+              res.status(200).json(response);
+            }
+          });
+        }
+      }
+    });
+  } else {
+    res.status(404).json(notFoundMessage);
+  }
+}
+
 
 module.exports = {
   assetsGet: assetsGet,
   assetsIdGet: assetsIdGet,
   assetsPost: assetsPost,
   assetsGetByType: assetsGetByType,
-  assetIdDelete: assetIdDelete
+  assetIdDelete: assetIdDelete,
+  assetIdPut: assetIdPut
 };
-
-// function assetsGetByType(req, res) {
-//   // body...
-//   var assets = [{
-//     type: 'harddrive',
-//     id: 'asd',
-//     asd: 'dont break'
-//   }];
-//
-//   res.status(200).json(assets);
-//
-// }

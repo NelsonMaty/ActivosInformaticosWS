@@ -309,37 +309,37 @@ paths:
           description: "Error interno del servidor"
           schema:
             $ref: "#/definitions/Notification"
-    # put:
-    #   tags:
-    #     - "Asset"
-    #   summary: "Actualizacion de activo"
-    #   description: "Usuario por identificador\n"
-    #   operationId: "assetsIdPut"
-    #   parameters:
-    #   - name: "id"
-    #     in: "path"
-    #     description: "identificador del activo."
-    #     required: true
-    #     type: "string"
-    #   - in: "body"
-    #     name: "user"
-    #     description: "Datos de activo para actualizar"
-    #     required: true
-    #     schema:
-    #       $ref: "#/definitions/UpdateAsset"
-    #   responses:
-    #     200:
-    #       description: "Usuario actualizado."
-    #       schema:
-    #         $ref: "#/definitions/Notification"
-    #     404:
-    #       description: "Recurso no encontrado"
-    #       schema:
-    #         $ref: "#/definitions/Notification"
-    #     500:
-    #       description: "Error interno del servidor"
-    #       schema:
-    #         $ref: "#/definitions/Notification"
+    put:
+      tags:
+        - "Asset"
+      summary: "Actualizacion de un activo informático"
+      description: "Actualiza los datos asociados a un activo informático\n"
+      operationId: "assetsIdPut"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "identificador del activo."
+        required: true
+        type: "string"
+      - in: "body"
+        name: "asset"
+        description: "Nuevos datos del activo"
+        required: true
+        schema:
+          $ref: "#/definitions/UpdateAsset"
+      responses:
+        200:
+          description: "Activo actualizado."
+          schema:
+            $ref: "#/definitions/Notification"
+        404:
+          description: "Recurso no encontrado"
+          schema:
+            $ref: "#/definitions/Notification"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Notification"
     delete:
       tags:
         - "Asset"
@@ -452,18 +452,33 @@ definitions:
       deleted:
         type: "boolean"
         description: "indica si el activo se encuentra borrado"
+      anyProperty:
+        type: ["string", "integer", "number", "boolean"]
+        description: "Propiedad y valor. Pueden agregarse cuantas propiedades sean necesarias y del tipo que sean necesarias."
+  UpdateAsset:
+    type: "object"
+    properties:
+      anyProperty:
+        type: ["string", "integer", "number", "boolean"]
+        description: "Propiedad y valor. Pueden agregarse cuantas propiedades sean necesarias y del tipo que sean necesarias."
   AssetByType:
     type: "object"
     properties:
       id:
         type: "string"
         description: "identificador único"
+      anyProperty:
+        type: ["string", "integer", "number", "boolean"]
+        description: "Propiedad y valor. Pueden agregarse cuantas propiedades sean necesarias y del tipo que sean necesarias."
   NewAsset:
     type: "object"
     properties:
       typeId:
         type: "string"
         description: id del tipo de activo
+      anyProperty:
+        type: ["string", "integer", "number", "boolean"]
+        description: "Propiedad y valor. Pueden agregarse cuantas propiedades sean necesarias y del tipo que sean necesarias."
   NewAssetType:
     type: "object"
     required:
