@@ -5,7 +5,7 @@ var Util = require('./Util');
 
 var notFoundMessage = {
   code : 404,
-  message : "Persona no encontrada"
+  message : "Activo no encontrado"
 };
 
 function assetsGet(req, res) {
@@ -34,6 +34,7 @@ function assetsPost(req, res) {
   newAsset.value = {};
   Util.extend(newAsset.value,req.body);
   newAsset.deleted = false;
+
 
   newAsset.save(function (err, asset) {
     if(err){
@@ -134,15 +135,22 @@ function assetIdPut(req, res) {
         }
         else{
 
-          // save the asset
+          delete req.body._id;
+          delete req.body.__v;
+          delete req.body.deleted;
+
+          Util.extend(asset.value, req.body);
+          asset.markModified("value");
+
           asset.save(function(err) {
             if (err){
               res.status(404).json(notFoundMessage);
             } else {
-              var response = {code:200, message:"El activo se ha eliminado correctamente."};
+              var response = {code:200, message:"El activo se ha actualizado correctamente."};
               res.status(200).json(response);
             }
           });
+
         }
       }
     });

@@ -314,7 +314,7 @@ paths:
         - "Asset"
       summary: "Actualizacion de un activo informático"
       description: "Actualiza los datos asociados a un activo informático\n"
-      operationId: "assetsIdPut"
+      operationId: "assetIdPut"
       parameters:
       - name: "id"
         in: "path"
