@@ -20,7 +20,9 @@ function assetsGet(req, res) {
       for (var i = 0; i < assets.length; i++) {
         response.push(assets[i].toJSON());
         response[i] = Util.extend(response[i], response[i].value);
+
         delete response[i].value;
+        // response[i].typeId = assets[i].typeId;
         // if(i == assets.length-1)
       }
       res.status(200).json(response);
@@ -31,10 +33,14 @@ function assetsGet(req, res) {
 function assetsPost(req, res) {
   var newAsset = new Asset();
   console.log(req.body);
-  newAsset.value = {};
-  Util.extend(newAsset.value,req.body);
-  newAsset.deleted = false;
 
+  newAsset.value = {};
+
+  newAsset.deleted = false;
+  newAsset.typeId = req.body.typeId;
+  delete req.body.typeId;
+
+  Util.extend(newAsset.value,req.body);
 
   newAsset.save(function (err, asset) {
     if(err){
@@ -55,8 +61,7 @@ function assetsGetByType(req, res) {
   * type (String)
   **/
   if (req.swagger.params.typeId.value.match(/^[0-9a-fA-F]{24}$/)){
-    console.log(req.swagger.params.typeId.value);
-    Asset.find({ "value.typeId": req.swagger.params.typeId.value },function (err, assets) {
+    Asset.find({typeId: req.swagger.params.typeId.value },function (err, assets) {
       if(err){
         res.status(500).json(err);
       }
@@ -66,7 +71,7 @@ function assetsGetByType(req, res) {
           response.push(assets[i].toJSON());
           response[i] = Util.extend(response[i], response[i].value);
           delete response[i].value;
-          delete response[i].assetType;
+          // response[i].typeId = assets[i].typeId;
         }
         res.status(200).json(response);
       }
@@ -85,8 +90,10 @@ function assetsIdGet(req, res) {
           res.status(404).json(notFoundMessage);
         }
         else {
-          console.log(asset);
-          res.status(200).json(asset);
+          var aux = asset.toJSON();
+          Util.extend(aux, aux.value);
+          delete aux.value;
+          res.status(200).json(aux);
         }
       }
     });
@@ -138,6 +145,7 @@ function assetIdPut(req, res) {
           delete req.body._id;
           delete req.body.__v;
           delete req.body.deleted;
+          delete req.body.typeId;
 
           Util.extend(asset.value, req.body);
           asset.markModified("value");

@@ -443,8 +443,10 @@ definitions:
   Asset:
     type: "object"
     properties:
-      type:
+      typeId:
         type: "string"
+        required:
+          - typeId
         description: id del tipo de activo
       id:
         type: "string"
