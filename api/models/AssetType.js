@@ -5,6 +5,7 @@ var Schema     = mongoose.Schema;
 var Property = new Schema({
   name : String,
   type : String,
+  required: Boolean,
   comment: String
 }, { _id: false });
 

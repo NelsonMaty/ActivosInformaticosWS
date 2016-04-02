@@ -25,6 +25,7 @@ function atPost(req, res) {
   newAT.comment = req.body.comment;
   newAT.properties = req.body.properties;
 
+
   newAT.save(function (err, at) {
     if(err){
       console.log(err);

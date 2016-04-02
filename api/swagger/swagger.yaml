@@ -430,6 +430,10 @@ definitions:
           $ref: "#/definitions/Property"
   Property:
     type: "object"
+    required:
+      - name
+      - type
+      - required
     properties:
       name:
         type: "string"
@@ -437,6 +441,9 @@ definitions:
       type:
         type: "string"
         description: tipo de dato de la propiedad
+      required:
+        type: "boolean"
+        description: indica si la propiedad es requerida o no
       comment:
         type: "string"
         description: breve descripcion acerca de la propiedad
