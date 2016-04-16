@@ -115,7 +115,7 @@ function assetIdDelete(req, res) {
           // save the asset
           asset.save(function(err) {
             if (err){
-              res.status(404).json(notFoundMessage);
+              res.status(500).json(notFoundMessage);
             } else {
               var response = {code:200, message:"El activo se ha eliminado correctamente."};
               res.status(200).json(response);
@@ -152,7 +152,7 @@ function assetIdPut(req, res) {
 
           asset.save(function(err) {
             if (err){
-              res.status(404).json(notFoundMessage);
+              res.status(500).json(err);
             } else {
               var response = {code:200, message:"El activo se ha actualizado correctamente."};
               res.status(200).json(response);

@@ -4,8 +4,15 @@ module.exports = {
   mergeProperties : mergeProperties,
   extend: extend,
   jsonToString: jsonToString,
-  parseJSON: parseJSON
+  parseJSON: parseJSON,
+  cleanResource: cleanResource
 };
+
+function cleanResource(resource) {
+  delete resource._id;
+  delete resource.__v;
+}
+
 
 function mergeProperties(obj1,obj2){
   for (var attrname in obj2) { obj1[attrname] = obj2[attrname]; }

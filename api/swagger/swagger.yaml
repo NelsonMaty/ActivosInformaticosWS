@@ -172,7 +172,7 @@ paths:
       operationId: "atPost"
       parameters:
       - in: "body"
-        name: "user"
+        name: "assetType"
         description: "Definicion del nuevo tipo de activo"
         required: true
         schema:
@@ -206,6 +206,37 @@ paths:
           description: "Tipo de activo por id."
           schema:
             $ref: "#/definitions/AssetType"
+        404:
+          description: "Recurso no encontrado"
+          schema:
+            $ref: "#/definitions/Notification"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Notification"
+    put:
+      tags:
+        - "AssetTypes"
+      summary: "Actualizacion de un tipo de activo informático"
+      description: "Actualiza los datos asociados a un tipo de activo informático\n"
+      operationId: "atIdPut"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "identificador del tipo de activo."
+        required: true
+        type: "string"
+      - in: "body"
+        name: "assetType"
+        description: "Nuevos datos del activo"
+        required: true
+        schema:
+          $ref: "#/definitions/UpdateAssetType"
+      responses:
+        200:
+          description: "Activo actualizado."
+          schema:
+            $ref: "#/definitions/Notification"
         404:
           description: "Recurso no encontrado"
           schema:
@@ -417,6 +448,24 @@ definitions:
       _id:
         type: "string"
         description: "identificador único del tipo de activo."
+      name:
+        type: "string"
+        description: "Nombre del tipo de activo."
+      comment:
+        type: "string"
+        description: "Comentario acerca del tipo de activo."
+      properties:
+        type: "array"
+        description: "Lista de propiedades del tipo de activo."
+        items:
+          $ref: "#/definitions/Property"
+
+  UpdateAssetType:
+    type: "object"
+    required:
+      - name
+      - properties
+    properties:
       name:
         type: "string"
         description: "Nombre del tipo de activo."
