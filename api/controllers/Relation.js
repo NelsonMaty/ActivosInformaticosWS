@@ -50,6 +50,7 @@ function relationPost(req, res) {
   // 5 - Create relation
           var newRelation = new Relation();
           newRelation.deleted = false;
+          newRelation.assetId = req.swagger.params.id.value;
           Util.extend(newRelation, req.body);
 
           newRelation.save(function (err,relation) {
@@ -89,7 +90,7 @@ function relationGet(req, res) {
       }
 
   // 3 - Find relations
-      Relation.find({deleted:false}, function (err, relations) {
+      Relation.find({assetId: req.swagger.params.id.value, deleted:false}, function (err, relations) {
         if(err){
           res.status(500).json(err);
         }
@@ -98,6 +99,7 @@ function relationGet(req, res) {
           for (var i = 0; i < relations.length; i++) {
             response.push(relations[i].toJSON());
             delete response[i].deleted;
+            delete response[i].assetId;
           }
           res.status(200).json(response);
         }
@@ -142,7 +144,9 @@ function relationIdGet(req, res) {
           return;
         }
         else {
-          res.status(200).json(relation);
+          var response = relation.toJSON();
+          delete response.assetId;
+          res.status(200).json(response);
         }
       }
     });
