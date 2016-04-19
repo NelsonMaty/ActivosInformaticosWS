@@ -148,7 +148,7 @@ paths:
     x-swagger-router-controller: "AssetType"
     get:
       tags:
-      - "AssetTypes"
+      - "AssetType"
       summary: "Consulta de tipos de activos informáticos"
       description: "Listado de todos los tipos de activos informáticos disponibles"
       operationId: "atGet"
@@ -166,7 +166,7 @@ paths:
             $ref: "#/definitions/Notification"
     post:
       tags:
-      - "AssetTypes"
+      - "AssetType"
       summary: "Crear tipo de activo"
       description: "Definir un nuevo tipo de activo a partir del cual se instanciarán nuevos activos informáticos."
       operationId: "atPost"
@@ -191,7 +191,7 @@ paths:
     x-swagger-router-controller: "AssetType"
     get:
       tags:
-      - "AssetTypes"
+      - "AssetType"
       summary: "Tipo de activo"
       description: "Tipo de activo por identificador\n"
       operationId: "atIdGet"
@@ -216,7 +216,7 @@ paths:
             $ref: "#/definitions/Notification"
     put:
       tags:
-        - "AssetTypes"
+        - "AssetType"
       summary: "Actualizacion de un tipo de activo informático"
       description: "Actualiza los datos asociados a un tipo de activo informático\n"
       operationId: "atIdPut"
@@ -396,7 +396,159 @@ paths:
           description: "Error interno del servidor"
           schema:
             $ref: "#/definitions/Notification"
-
+  /assets/{id}/relations:
+    x-swagger-router-controller: "Relation"
+    get:
+      tags:
+        - "Relation"
+      description: "Listado de relaciones hacia otros activos"
+      operationId: "relationGet"
+      parameters:
+        - name: "id"
+          in: "path"
+          description: "identifcador del activo del cual se quieren conocer las relaciones"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Listado de relaciones"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Relation"
+        404:
+          description: "Activo no encontrado"
+          schema:
+            $ref: "#/definitions/Notification"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Notification"
+    post:
+      tags:
+        - "Relation"
+      description: "Registrar una nueva relacion"
+      operationId: "relationPost"
+      parameters:
+        - name: "id"
+          in: "path"
+          description: "identifcador del activo del cual se quieren conocer las relaciones"
+          required: true
+          type: "string"
+        - in: "body"
+          name: "relation"
+          description: "Relacion a registrar en el sistema"
+          required: true
+          schema:
+            $ref: "#/definitions/NewRelation"
+      responses:
+        201:
+          description: "Relacion creada"
+          schema:
+            $ref: "#/definitions/Notification"
+        404:
+          description: "Activo no encontrado"
+          schema:
+            $ref: "#/definitions/Notification"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Notification"
+  /assets/{id}/relations/{relId}:
+    x-swagger-router-controller: "Relation"
+    get:
+      tags:
+        - "Relation"
+      description: "Relacion por identificador"
+      operationId: "relationIdGet"
+      parameters:
+        - name: "id"
+          in: "path"
+          description: "identificador del activo"
+          required: true
+          type: "string"
+        - name: "relId"
+          in: "path"
+          description: "identificador del activo con el cual se relaciona"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Relacion por id"
+          schema:
+            $ref: "#/definitions/Relation"
+        404:
+          description: "Recurso no encontrado"
+          schema:
+            $ref: "#/definitions/Notification"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Notification"
+    put:
+      tags:
+        - "Relation"
+      description: "Actualizar datos de relacion"
+      operationId: "relationPut"
+      parameters:
+        - name: "id"
+          in: "path"
+          description: "identificador del activo"
+          required: true
+          type: "string"
+        - name: "relId"
+          in: "path"
+          description: "identificador del activo con el cual se relaciona"
+          required: true
+          type: "string"
+        - in: "body"
+          name: "relation"
+          description: "Nuevos datos de la relacion"
+          required: true
+          schema:
+            $ref: "#/definitions/UpdateRelation"
+      responses:
+        200:
+          description: "Relacion actualizada"
+          schema:
+            $ref: "#/definitions/Notification"
+        404:
+          description: "Recurso no encontrado"
+          schema:
+            $ref: "#/definitions/Notification"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Notification"
+    delete:
+      tags:
+        - "Relation"
+      description: "Elimina lógicamente una relación"
+      operationId: "relationDelete"
+      parameters:
+        - name: "id"
+          in: "path"
+          description: "identificador del activo"
+          required: true
+          type: "string"
+        - name: "relId"
+          in: "path"
+          description: "identificador del activo con el cual se relaciona"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Relacion borrada."
+          schema:
+            $ref: "#/definitions/Notification"
+        404:
+          description: "Recurso no encontrado"
+          schema:
+            $ref: "#/definitions/Notification"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Notification"
   /swagger:
     x-swagger-pipe: swagger_raw
 # complex objects have schema definitions
@@ -459,7 +611,6 @@ definitions:
         description: "Lista de propiedades del tipo de activo."
         items:
           $ref: "#/definitions/Property"
-
   UpdateAssetType:
     type: "object"
     required:
@@ -528,6 +679,51 @@ definitions:
       anyProperty:
         type: ["string", "integer", "number", "boolean"]
         description: "Propiedad y valor. Pueden agregarse cuantas propiedades sean necesarias y del tipo que sean necesarias."
+  Relation:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "identificador único de la relación"
+      name:
+        type: "string"
+        description: "nombre de la relacion"
+      isCritical:
+        type: "boolean"
+        description: "indica una relación de dependencia fuerte entre dos activos"
+      comment:
+        type: "string"
+        description: "comentario acerca de la relación"
+      relatedAssetId:
+        type: "string"
+        description: "id del activo relacionado"
+  NewRelation:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        description: "nombre de la relacion"
+      isCritical:
+        type: "boolean"
+        description: "indica una relación de dependencia fuerte entre dos activos"
+      comment:
+        type: "string"
+        description: "comentario acerca de la relación"
+      relatedAssetId:
+        type: "string"
+        description: "id del activo relacionado"
+  UpdateRelation:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        description: "nombre de la relacion"
+      isCritical:
+        type: "boolean"
+        description: "indica una relación de dependencia fuerte entre dos activos"
+      comment:
+        type: "string"
+        description: "comentario acerca de la relación"
   NewAsset:
     type: "object"
     properties:
