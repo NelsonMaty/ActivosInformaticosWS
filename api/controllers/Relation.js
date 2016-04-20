@@ -154,8 +154,60 @@ function relationIdGet(req, res) {
 }
 
 function relationPut(req, res) {
-  console.log("put");
-  res.json({});
+  // 1 - Check if the source asset id provided is valid
+  if (!req.swagger.params.id.value.match(/^[0-9a-fA-F]{24}$/)){
+    resNotFound(res,"No se encontró ningun activo con id " + req.swagger.params.id.value );
+    return;
+  }
+
+  // 2 - Check if the relation id provided is valid
+  if (!req.swagger.params.relId.value.match(/^[0-9a-fA-F]{24}$/)){
+    resNotFound(res,"No se encontró ningun activo con el id " + req.swagger.params.relId.value);
+    return;
+  }
+
+  // 3 - Check if the source asset exists
+  Asset.findById(req.swagger.params.id.value, function (err, a) {
+    if(err){
+      res.status(500).json(err);
+    }
+    else {
+      if(a===null){
+        resNotFound(res,"No se encontró ningun activo con el id " + req.swagger.params.id.value );
+        return;
+      }
+
+      // 4 - Find the relation by ID
+      Relation.findById(req.swagger.params.relId.value, function (err, relation) {
+        if(err){
+          res.status(500).json(err);
+        }
+        else {
+          if(relation===null){
+            resNotFound(res,"No se encontró ninguna relación con el id " + req.swagger.params.relId.value );
+            return;
+          }
+          else {
+            // 6 - Update the relation data
+            Util.cleanResource(req.body);
+            Util.extend(relation, req.body);
+            relation.save(function (err) {
+              if(err){
+                res.status(500).json(err);
+              }
+              else {
+                var response = {
+                  code: 200,
+                  message: 'Relación actualizada con éxito'
+                };
+                res.status(200).json(response);
+              }
+            });
+          }
+        }
+      });
+    }
+  });
 }
 
 function relationDelete(req, res) {

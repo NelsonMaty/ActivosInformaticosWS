@@ -498,7 +498,7 @@ paths:
           type: "string"
         - name: "relId"
           in: "path"
-          description: "identificador del activo con el cual se relaciona"
+          description: "identificador de la relacion"
           required: true
           type: "string"
         - in: "body"
