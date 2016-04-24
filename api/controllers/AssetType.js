@@ -32,6 +32,7 @@ function atPost(req, res) {
   newAT.name = req.body.name;
   newAT.comment = req.body.comment;
   newAT.properties = req.body.properties;
+  newAT.lifeCycle = req.body.lifeCycle;
 
   newAT.save(function (err, at) {
     if(err){

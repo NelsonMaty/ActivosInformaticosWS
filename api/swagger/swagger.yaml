@@ -596,6 +596,7 @@ definitions:
       - _id
       - name
       - properties
+      - lifeCycle
     properties:
       _id:
         type: "string"
@@ -611,11 +612,42 @@ definitions:
         description: "Lista de propiedades del tipo de activo."
         items:
           $ref: "#/definitions/Property"
+      lifeCycle:
+        type: "array"
+        description: "Lista de todos los nodos del ciclo de vida del tipo de activo."
+        items:
+          $ref: "#/definitions/LifeCycle"
+  LifeCycle:
+    type: "object"
+    required:
+      - name
+      - isInitial
+      - isFinal
+      - adjacents
+    properties:
+      name:
+        type: "string"
+        description: "Nombre del estado. Este debe ser único entre todos los nodos del ciclo de vida."
+      isInitial:
+        type: "boolean"
+        description: "Indica si el nodo es inicial. Sólo puede existir un nodo inicial en un ciclo de vida."
+      isFinal:
+        type: "boolean"
+        description: "Indica si el nodo es final. Pueden existir múltiples nodos finales en un ciclo de vida."
+      adjacents:
+        type: "array"
+        items:
+          type: "string"
+        description: "listado de nombres de nodos adyacentes"
+      comment:
+        type: "string"
+        description: "Comentario acerca del estado"
   UpdateAssetType:
     type: "object"
     required:
       - name
       - properties
+      - lifeCycle
     properties:
       name:
         type: "string"
@@ -628,6 +660,11 @@ definitions:
         description: "Lista de propiedades del tipo de activo."
         items:
           $ref: "#/definitions/Property"
+      lifeCycle:
+        type: "array"
+        description: "Lista de todos los nodos del ciclo de vida del tipo de activo."
+        items:
+          $ref: "#/definitions/LifeCycle"
   Property:
     type: "object"
     required:
@@ -750,6 +787,11 @@ definitions:
         description: "Lista de propiedades del tipo de activo."
         items:
           $ref: "#/definitions/Property"
+      lifeCycle:
+        type: "array"
+        description: "Lista de todos los nodos del ciclo de vida del tipo de activo."
+        items:
+          $ref: "#/definitions/LifeCycle"
   NewResource:
     type: "object"
     required:

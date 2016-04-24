@@ -32,7 +32,6 @@ function assetsGet(req, res) {
 
 function assetsPost(req, res) {
   var newAsset = new Asset();
-  console.log(req.body);
 
   newAsset.value = {};
 

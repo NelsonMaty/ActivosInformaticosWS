@@ -9,10 +9,20 @@ var Property = new Schema({
   comment: String
 }, { _id: false });
 
+var Node = new Schema({
+  name : String,
+  isInitial : Boolean,
+  isFinal: Boolean,
+  adjacents: [String],
+  comment: String
+}, { _id: false });
+
+
 var AssetType = new Schema({
   name:       String,
   comment:    String,
-  properties: [Property]
+  properties: [Property],
+  lifeCycle:  [Node]
 });
 
 module.exports = mongoose.model('AssetType', AssetType);
