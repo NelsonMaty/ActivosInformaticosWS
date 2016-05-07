@@ -549,6 +549,132 @@ paths:
           description: "Error interno del servidor"
           schema:
             $ref: "#/definitions/Notification"
+  /relationTypes:
+    x-swagger-router-controller: "RelationType"
+    get:
+      tags:
+      - "RelationType"
+      summary: "Consulta de tipos de relación"
+      description: "Listado de todos los tipos de relación"
+      operationId: "relTypeGet"
+      parameters: []
+      responses:
+        200:
+          description: "Listado de tipos de relación"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/RelationType"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Notification"
+    post:
+      tags:
+      - "RelationType"
+      summary: "Crear tipo de relación"
+      description: "Dar de alta un tipo de relación"
+      operationId: "relTypePost"
+      parameters:
+      - in: "body"
+        name: "relType"
+        description: "Tipo de relación a dar de alta en el sistema"
+        required: true
+        schema:
+          $ref: "#/definitions/NewRelationType"
+      responses:
+        201:
+          description: "Tipo de relación creado"
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/NewResource"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Notification"
+  /relationTypes/{id}:
+    x-swagger-router-controller: "RelationType"
+    get:
+      tags:
+      - "RelationType"
+      summary: "Tipo de relación"
+      description: "Tipo de relación por identificador\n"
+      operationId: "relTypeIdGet"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "identificador del tipo de relación."
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Tipo de relación por id."
+          schema:
+            $ref: "#/definitions/RelationType"
+        404:
+          description: "Recurso no encontrado"
+          schema:
+            $ref: "#/definitions/Notification"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Notification"
+    put:
+      tags:
+      - "RelationType"
+      summary: "Tipo de relación"
+      description: "Tipo de relación por identificador\n"
+      operationId: "relTypeIdPut"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "identificador del tipo de relación."
+        required: true
+        type: "string"
+      - in: "body"
+        name: "relType"
+        description: "Datos del tipo de relación para actualizar"
+        required: true
+        schema:
+          $ref: "#/definitions/UpdateRelationType"
+      responses:
+        200:
+          description: "Tipo de relación actualizado."
+          schema:
+            $ref: "#/definitions/Notification"
+        404:
+          description: "Recurso no encontrado"
+          schema:
+            $ref: "#/definitions/Notification"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Notification"
+    delete:
+      tags:
+      - "RelationType"
+      summary: "Tipo de relación"
+      description: "Tipo de relación por identificador\n"
+      operationId: "relTypeIdDelete"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "identificador del tipo de relación."
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Tipo de relación borrado."
+          schema:
+            $ref: "#/definitions/Notification"
+        404:
+          description: "Recurso no encontrado"
+          schema:
+            $ref: "#/definitions/Notification"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Notification"
   /swagger:
     x-swagger-pipe: swagger_raw
 # complex objects have schema definitions
@@ -580,6 +706,46 @@ definitions:
         type: "string"
         description: "Comentario acerca del usuario."
   NewUser:
+    type: "object"
+    required:
+      - name
+    properties:
+      name:
+        type: "string"
+        description: "Nombre de usuario."
+      comment:
+        type: "string"
+        description: "Comentario acerca del usuario."
+  RelationType:
+    type: "object"
+    required:
+      - _id
+      - name
+    properties:
+      _id:
+        type: "string"
+        description: "identificador único del tipo de relación."
+      name:
+        type: "string"
+        description: "Nombre del tipo de relación."
+      comment:
+        type: "string"
+        description: "Comentario acerca del tipo de relación."
+      deleted:
+        type: "boolean"
+        description: "Indica si se trata de un tipo de relación ya eliminado o no."
+  UpdateRelationType:
+    required:
+      - comment
+    type: "object"
+    properties:
+      comment:
+        type: "string"
+        description: "Comentario acerca del tipo de relación."
+      name:
+        type: "string"
+        description: "Nombre del tipo de relación."
+  NewRelationType:
     type: "object"
     required:
       - name

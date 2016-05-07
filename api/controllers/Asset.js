@@ -1,6 +1,7 @@
 'use strict';
 
 var Asset  = require('../models/Asset');
+var AssetType  = require('../models/AssetType');
 var Util = require('./Util');
 
 var notFoundMessage = {
@@ -35,22 +36,56 @@ function assetsPost(req, res) {
 
   newAsset.value = {};
 
-  newAsset.deleted = false;
-  newAsset.typeId = req.body.typeId;
-  delete req.body.typeId;
+  // 1 - Check if the assetype id is valid
+  if (!req.body.typeId.match(/^[0-9a-fA-F]{24}$/)){
+    var error = {
+      code : 404,
+      message : "Tipo de activo no encontrada"
+    };
+    res.status(404).json(error);
+    return;
+  }
 
-  Util.extend(newAsset.value,req.body);
+  // 2 - Check if the assetype exists
+  AssetType.findById(req.body.typeId, function(err, at) {
 
-  newAsset.save(function (err, asset) {
-    if(err){
+    if (err){
       console.log(err);
       res.status(500).json(err);
+      return;
     }
-    else {
-      var response = {code:201, id:asset._id};
-      res.location('/assets/' + asset.id);
-      res.status(201).json(response);
+
+    if(at===null){
+      var error = {
+        code : 404,
+        message : "Tipo de activo no encontrado"
+      };
+      res.status(404).json(error);
+      return;
     }
+
+    // 3 - Check if the asset has a valid definition
+
+
+    
+
+    newAsset.deleted = false;
+    newAsset.typeId = req.body.typeId;
+    delete req.body.typeId;
+
+    Util.extend(newAsset.value,req.body);
+
+    newAsset.save(function (err, asset) {
+      if(err){
+        console.log(err);
+        res.status(500).json(err);
+      }
+      else {
+        var response = {code:201, id:asset._id};
+        res.location('/assets/' + asset.id);
+        res.status(201).json(response);
+      }
+    });
   });
 }
 
