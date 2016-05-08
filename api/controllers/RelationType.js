@@ -6,7 +6,7 @@ var Util  = require('./Util');
 
 function relTypeGet(req, res) {
   // variables defined in the Swagger document can be referenced using req.swagger.params.{parameter_name}
-  RelationType.find(function (err, relTypes) {
+  RelationType.find({deleted:false}, function (err, relTypes) {
     if(err){
       res.status(500).json(err);
     }
