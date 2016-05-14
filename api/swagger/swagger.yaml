@@ -440,7 +440,7 @@ paths:
           description: "Relacion a registrar en el sistema"
           required: true
           schema:
-            $ref: "#/definitions/NewRelation"
+            $ref: "#/definitions/Relation"
       responses:
         201:
           description: "Relacion creada"
@@ -720,14 +720,16 @@ definitions:
     type: "object"
     required:
       - _id
-      - name
     properties:
       _id:
         type: "string"
         description: "identificador único del tipo de relación."
-      name:
+      inLabel:
         type: "string"
-        description: "Nombre del tipo de relación."
+        description: "Descripción del tipo de relación (saliente)."
+      outLabel:
+        type: "string"
+        description: "Descripción del tipo de relación (entrante)."
       comment:
         type: "string"
         description: "Comentario acerca del tipo de relación."
@@ -735,24 +737,31 @@ definitions:
         type: "boolean"
         description: "Indica si se trata de un tipo de relación ya eliminado o no."
   UpdateRelationType:
-    required:
-      - comment
     type: "object"
     properties:
       comment:
         type: "string"
         description: "Comentario acerca del tipo de relación."
-      name:
+      inLabel:
         type: "string"
-        description: "Nombre del tipo de relación."
+        description: "Descripción del tipo de relación (saliente)."
+      outLabel:
+        type: "string"
+        description: "Descripción del tipo de relación (entrante)."
   NewRelationType:
     type: "object"
     required:
-      - name
+      - _id
     properties:
-      name:
+      _id:
         type: "string"
-        description: "Nombre de usuario."
+        description: "Nombre del tipo de relación."
+      inLabel:
+        type: "string"
+        description: "Descripción del tipo de relación (saliente)."
+      outLabel:
+        type: "string"
+        description: "Descripción del tipo de relación (entrante)."
       comment:
         type: "string"
         description: "Comentario acerca del usuario."
@@ -884,13 +893,14 @@ definitions:
         description: "Propiedad y valor. Pueden agregarse cuantas propiedades sean necesarias y del tipo que sean necesarias."
   Relation:
     type: "object"
+    required:
+      - id
+      - relatedAssetId
+      - relationTypeId
     properties:
       id:
         type: "string"
         description: "identificador único de la relación"
-      name:
-        type: "string"
-        description: "nombre de la relacion"
       isCritical:
         type: "boolean"
         description: "indica una relación de dependencia fuerte entre dos activos"
@@ -900,27 +910,12 @@ definitions:
       relatedAssetId:
         type: "string"
         description: "id del activo relacionado"
-  NewRelation:
-    type: "object"
-    properties:
-      name:
+      relationTypeId:
         type: "string"
-        description: "nombre de la relacion"
-      isCritical:
-        type: "boolean"
-        description: "indica una relación de dependencia fuerte entre dos activos"
-      comment:
-        type: "string"
-        description: "comentario acerca de la relación"
-      relatedAssetId:
-        type: "string"
-        description: "id del activo relacionado"
+        description: "id del tipo de relación"
   UpdateRelation:
     type: "object"
     properties:
-      name:
-        type: "string"
-        description: "nombre de la relacion"
       isCritical:
         type: "boolean"
         description: "indica una relación de dependencia fuerte entre dos activos"

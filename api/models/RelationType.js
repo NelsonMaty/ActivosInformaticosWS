@@ -3,8 +3,9 @@ var mongoose   = require('mongoose');
 var Schema     = mongoose.Schema;
 
 var RelationType = new Schema({
-  name : String,
-  type : String,
+  _id : String,
+  outLabel : String,
+  inLabel : String,
   comment: String,
   deleted: Boolean
 });

@@ -19,12 +19,15 @@ function relTypeGet(req, res) {
 function relTypePost(req, res) {
 
   var newRelType = new RelationType();
-  newRelType.name = req.body.name;
+  newRelType._id = req.body._id;
+  newRelType.inLabel = req.body.inLabel;
+  newRelType.outLabel = req.body.outLabel;
   newRelType.comment = req.body.comment;
   newRelType.deleted = false;
 
   newRelType.save(function (err, relType) {
     if(err){
+      console.log(err);
       res.status(500).json(err);
     }
     else {
