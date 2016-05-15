@@ -592,6 +592,10 @@ paths:
           description: "Error interno del servidor"
           schema:
             $ref: "#/definitions/Notification"
+        403:
+          description: "El tipo de activo ya existe"
+          schema:
+            $ref: "#/definitions/Notification"
   /relationTypes/{id}:
     x-swagger-router-controller: "RelationType"
     get:

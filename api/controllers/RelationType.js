@@ -17,24 +17,30 @@ function relTypeGet(req, res) {
 }
 
 function relTypePost(req, res) {
-
-  var newRelType = new RelationType();
-  newRelType._id = req.body._id;
-  newRelType.inLabel = req.body.inLabel;
-  newRelType.outLabel = req.body.outLabel;
-  newRelType.comment = req.body.comment;
-  newRelType.deleted = false;
-
-  newRelType.save(function (err, relType) {
-    if(err){
-      console.log(err);
-      res.status(500).json(err);
+  RelationType.findById(req.body._id, function(err, relType) {
+    if(relType !== null){
+      var response = {code:403, message:'El tipo de relación "'+req.body._id+'" ya existe.'};
+      res.status(403).json(response);
+      return;
     }
-    else {
-      var response = {code:201, id:relType._id};
-      res.location('/relType/' + relType.id);
-      res.status(201).json(response);
-    }
+    var newRelType = new RelationType();
+    newRelType._id = req.body._id;
+    newRelType.inLabel = req.body.inLabel;
+    newRelType.outLabel = req.body.outLabel;
+    newRelType.comment = req.body.comment;
+    newRelType.deleted = false;
+
+    newRelType.save(function (err, relType) {
+      if(err){
+        console.log(err);
+        res.status(500).json(err);
+      }
+      else {
+        var response = {code:201, id:relType._id};
+        res.location('/relType/' + relType.id);
+        res.status(201).json(response);
+      }
+    });
   });
 }
 
