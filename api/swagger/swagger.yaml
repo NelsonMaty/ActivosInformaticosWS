@@ -287,7 +287,6 @@ paths:
           description: "Error interno del servidor"
           schema:
             $ref: "#/definitions/Notification"
-
   /assetTypes/{typeId}/assets:
     x-swagger-router-controller: "Asset"
     get:
@@ -313,7 +312,6 @@ paths:
           description: "Error interno del servidor"
           schema:
             $ref: "#/definitions/Notification"
-
   /assets/{id}:
     x-swagger-router-controller: "Asset"
     get:
@@ -440,7 +438,7 @@ paths:
           description: "Relacion a registrar en el sistema"
           required: true
           schema:
-            $ref: "#/definitions/Relation"
+            $ref: "#/definitions/NewRelation"
       responses:
         201:
           description: "Relacion creada"
@@ -905,6 +903,24 @@ definitions:
       id:
         type: "string"
         description: "identificador único de la relación"
+      isCritical:
+        type: "boolean"
+        description: "indica una relación de dependencia fuerte entre dos activos"
+      comment:
+        type: "string"
+        description: "comentario acerca de la relación"
+      relatedAssetId:
+        type: "string"
+        description: "id del activo relacionado"
+      relationTypeId:
+        type: "string"
+        description: "id del tipo de relación"
+  NewRelation:
+    type: "object"
+    required:
+      - relatedAssetId
+      - relationTypeId
+    properties:
       isCritical:
         type: "boolean"
         description: "indica una relación de dependencia fuerte entre dos activos"
