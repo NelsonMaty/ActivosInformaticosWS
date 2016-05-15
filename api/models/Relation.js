@@ -7,6 +7,7 @@ var Relation = new Schema({
   isCritical: Boolean,
   assetId : {type: Schema.Types.ObjectId, ref: 'Asset'},
   relatedAssetId : {type: Schema.Types.ObjectId, ref: 'Asset'},
+  relationTypeId :{type: Schema.Types.String, ref: 'RelationType'},
   deleted: Boolean,
   comment: String
 });

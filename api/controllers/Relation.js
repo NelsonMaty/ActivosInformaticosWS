@@ -100,7 +100,10 @@ function relationGet(req, res) {
             response.push(relations[i].toJSON());
             delete response[i].deleted;
             delete response[i].assetId;
+            response[i].id = response[i]._id;
+            delete response[i]._id;
           }
+          console.log(response);
           res.status(200).json(response);
         }
       });

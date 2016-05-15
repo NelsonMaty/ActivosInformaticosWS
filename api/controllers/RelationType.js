@@ -39,126 +39,95 @@ function relTypePost(req, res) {
 }
 
 function relTypeIdGet(req, res) {
-  if (req.swagger.params.id.value.match(/^[0-9a-fA-F]{24}$/)){
-    RelationType.findById(req.swagger.params.id.value, function(err, relType) {
-      if (err){
-        console.log(err);
-        res.status(500).json(err);
+  RelationType.findById(req.swagger.params.id.value, function(err, relType) {
+    if (err){
+      console.log(err);
+      res.status(500).json(err);
+    }
+    else{
+      if(relType===null){
+        var error = {
+          code : 404,
+          message : "Tipo de relación no encontrado"
+        };
+        res.status(404).json(error);
       }
-      else{
-        if(relType===null){
-          var error = {
-            code : 404,
-            message : "Tipo de relación no encontrado"
-          };
-          res.status(404).json(error);
-        }
-        else {
-          res.status(200).json(relType);
-        }
+      else {
+        res.status(200).json(relType);
       }
-    });
-  }
-  else {
-    var error = {
-      code : 404,
-      message : "Tipo de relación no encontrada"
-    };
-    res.status(404).json(error);
-  }
+    }
+  });
 }
 
 function relTypeIdPut(req, res) {
-  // use our bear model to find the bear we want
-  if (req.swagger.params.id.value.match(/^[0-9a-fA-F]{24}$/)) {
-
-    RelationType.findById(req.swagger.params.id.value, function(err, relType) {
-
-      if (err){
-        res.status(500).json(err);
+  RelationType.findById(req.swagger.params.id.value, function(err, relType) {
+    if (err){
+      res.status(500).json(err);
+    }
+    else {
+      if(relType === null){
+        var error = {
+          code : 404,
+          message : "Tipo de relación no encontrada"
+        };
+        res.status(404).json(error);
       }
       else {
-        if(relType === null){
-          var error = {
-            code : 404,
-            message : "Tipo de relación no encontrada"
-          };
-          res.status(404).json(error);
-        }
-        else {
-          Util.extend(relType, req.swagger.params.relType.value);
-          // save the relType
-          relType.save(function(err) {
-            if (err){
-              res.status(500).json(err);
-            }
-            else {
-              var response = {
-                code: 200,
-                message: 'Tipo de relación actualizado con éxito'
-              };
-              res.status(200).json(response);
-            }
-          });
-        }
+        Util.extend(relType, req.swagger.params.relType.value);
+        // save the relType
+        relType.save(function(err) {
+          if (err){
+            res.status(500).json(err);
+          }
+          else {
+            var response = {
+              code: 200,
+              message: 'Tipo de relación actualizado con éxito'
+            };
+            res.status(200).json(response);
+          }
+        });
       }
-    });
-  }
-  else {
-    var error = {
-      code : 404,
-      message : "Tipo de relación no encontrada"
-    };
-    res.status(404).json(error);
-  }
+    }
+  });
 }
 
 function relTypeIdDelete(req, res) {
-  if (req.swagger.params.id.value.match(/^[0-9a-fA-F]{24}$/)) {
-    RelationType.findById(req.swagger.params.id.value, function(err, relType) {
-
-      if (err){
-        res.status(500).json(err);
+  RelationType.findById(req.swagger.params.id.value, function(err, relType) {
+    if (err){
+      res.status(500).json(err);
+    }
+    else {
+      if(relType===null){
+        var error = {
+          code : 404,
+          message : "Tipo de relación no encontrado"
+        };
+        res.status(404).json(error);
       }
       else {
-        if(relType===null){
-          var error = {
-            code : 404,
-            message : "Tipo de relación no encontrado"
-          };
-          res.status(404).json(error);
-        }
-        else {
-          relType.deleted = true;
-          // save the relType
-          relType.save(function(err) {
-            if (err){
-              console.log(err);
-              var error = {
-                code : 500,
-                message : "Error en la base de datos"
-              };
-              res.status(500).json(error);
-            }
-            else {
-              var response = {
-                code: 200,
-                message: 'Tipo de relación eliminado con éxito'
-              };
-              res.status(200).json(response);
-            }
-          });
-        }
+        relType.deleted = true;
+        // save the relType
+        relType.save(function(err) {
+          if (err){
+            console.log(err);
+            var error = {
+              code : 500,
+              message : "Error en la base de datos"
+            };
+            res.status(500).json(error);
+          }
+          else {
+            var response = {
+              code: 200,
+              message: 'Tipo de relación eliminado con éxito'
+            };
+            res.status(200).json(response);
+          }
+        });
       }
-    });
-  }
-  else {
-    var error = {
-      code : 404,
-      message : "Tipo de relación no encontrada"
-    };
-    res.status(404).json(error);
-  }
+    }
+  });
 }
 
 module.exports = {
