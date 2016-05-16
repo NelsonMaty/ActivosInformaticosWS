@@ -1,6 +1,7 @@
 'use strict';
 
 var Relation = require('../models/Relation');
+var RelationType  = require('../models/RelationType');
 var Asset  = require('../models/Asset');
 
 var Util  = require('./Util');
@@ -40,14 +41,28 @@ function relationPost(req, res) {
       Asset.findById(req.body.relatedAssetId, function (err, b) {
         if(err){
           res.status(500).json(err);
+          return;
         }
-        else {
-          if(b===null){
-            resNotFound(res,"No se encontró ningun activo con el id " + req.body.relatedAssetId );
+        if(b===null){
+          resNotFound(res,"No se encontró ningun activo con el id " + req.body.relatedAssetId );
+          return;
+        }
+  // 5 - Check if the relation type exists
+        RelationType.findById(req.body.relationTypeId, function(err, relType) {
+          if (err){
+            console.log(err);
+            res.status(500).json(err);
             return;
           }
-
-  // 5 - Create relation
+          if(relType===null){
+            var error = {
+              code : 404,
+              message : "Tipo de relación no encontrado"
+            };
+            res.status(404).json(error);
+            return;
+          }
+  // 6 - Create outgoing relation from source asset
           var newRelation = new Relation();
           newRelation.deleted = false;
           newRelation.assetId = req.swagger.params.id.value;
@@ -57,14 +72,18 @@ function relationPost(req, res) {
             if(err){
               console.log(err);
               res.status(500).json(err);
+              return;
             }
-            else {
-              var response = {code:201, id:relation._id};
-              res.location('/assets/' + req.swagger.params.id.value + '/relations/' + relation.id);
-              res.status(201).json(response);
-            }
+            var response = {code:201, id:relation._id};
+            res.location('/assets/' + req.swagger.params.id.value + '/relations/' + relation.id);
+            res.status(201).json(response);
+
+  // 7 - Create incoming relation to target asset
+
+            
+
           });
-        }
+        });
       });
     }
   });
