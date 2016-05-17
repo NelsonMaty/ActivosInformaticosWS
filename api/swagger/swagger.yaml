@@ -452,6 +452,34 @@ paths:
           description: "Error interno del servidor"
           schema:
             $ref: "#/definitions/Notification"
+  /assets/{id}/relations/incoming:
+    x-swagger-router-controller: "Relation"
+    get:
+      tags:
+        - "Relation"
+      description: "Listado de relaciones desde otros activos"
+      operationId: "counterRelationGet"
+      parameters:
+        - name: "id"
+          in: "path"
+          description: "identifcador del activo del cual se quieren conocer las relaciones entrantes"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Listado de relaciones entrantes"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Relation"
+        404:
+          description: "Activo no encontrado"
+          schema:
+            $ref: "#/definitions/Notification"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Notification"
   /assets/{id}/relations/{relId}:
     x-swagger-router-controller: "Relation"
     get:

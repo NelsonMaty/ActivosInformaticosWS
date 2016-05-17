@@ -66,6 +66,7 @@ function relationPost(req, res) {
           var newRelation = new Relation();
           newRelation.deleted = false;
           newRelation.assetId = req.swagger.params.id.value;
+          newRelation.isIncomingRel = false;
           Util.extend(newRelation, req.body);
 
           newRelation.save(function (err,relation) {
@@ -74,14 +75,24 @@ function relationPost(req, res) {
               res.status(500).json(err);
               return;
             }
-            var response = {code:201, id:relation._id};
-            res.location('/assets/' + req.swagger.params.id.value + '/relations/' + relation.id);
-            res.status(201).json(response);
-
   // 7 - Create incoming relation to target asset
+            var newRelation2 = new Relation();
+            newRelation2.deleted = false;
+            Util.extend(newRelation2, req.body);
+            newRelation2.isIncomingRel = true;
+            newRelation2.assetId = req.body.relatedAssetId;
+            newRelation2.relatedAssetId = req.swagger.params.id.value;
 
-            
-
+            newRelation2.save(function (err, relation2) {
+              if(err){
+                console.log(err);
+                res.status(500).json(err);
+                return;
+              }
+              var response = {code:201, id:relation._id};
+              res.location('/assets/' + req.swagger.params.id.value + '/relations/' + relation.id);
+              res.status(201).json(response);
+            });
           });
         });
       });
@@ -109,7 +120,7 @@ function relationGet(req, res) {
       }
 
   // 3 - Find relations
-      Relation.find({assetId: req.swagger.params.id.value, deleted:false}, function (err, relations) {
+      Relation.find({assetId: req.swagger.params.id.value, deleted:false, isIncomingRel:false}, function (err, relations) {
         if(err){
           res.status(500).json(err);
         }
@@ -119,6 +130,49 @@ function relationGet(req, res) {
             response.push(relations[i].toJSON());
             delete response[i].deleted;
             delete response[i].assetId;
+            delete response[i].isIncomingRel;
+            response[i].id = response[i]._id;
+            delete response[i]._id;
+          }
+          console.log(response);
+          res.status(200).json(response);
+        }
+      });
+    }
+  });
+}
+
+function counterRelationGet(req, res) {
+
+  // 1 - Check if the source asset id provided is valid
+  if (!req.swagger.params.id.value.match(/^[0-9a-fA-F]{24}$/)){
+    resNotFound(res,"No se encontró ningun activo con id " + req.swagger.params.id.value );
+    return;
+  }
+
+  // 2 - Check if the source asset exists
+  Asset.findById(req.swagger.params.id.value, function (err, a) {
+    if(err){
+      res.status(500).json(err);
+    }
+    else {
+      if(a===null){
+        resNotFound(res,"No se encontró ningun activo con el id " + req.swagger.params.id.value );
+        return;
+      }
+
+  // 3 - Find relations
+      Relation.find({assetId: req.swagger.params.id.value, deleted:false, isIncomingRel:true}, function (err, relations) {
+        if(err){
+          res.status(500).json(err);
+        }
+        else {
+          var response = [];
+          for (var i = 0; i < relations.length; i++) {
+            response.push(relations[i].toJSON());
+            delete response[i].deleted;
+            delete response[i].assetId;
+            delete response[i].isIncomingRel;
             response[i].id = response[i]._id;
             delete response[i]._id;
           }
@@ -286,5 +340,6 @@ module.exports = {
   relationIdGet: relationIdGet,
   relationPost: relationPost,
   relationPut: relationPut,
-  relationDelete: relationDelete
+  relationDelete: relationDelete,
+  counterRelationGet: counterRelationGet
 };
