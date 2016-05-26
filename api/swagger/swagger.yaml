@@ -245,6 +245,34 @@ paths:
           description: "Error interno del servidor"
           schema:
             $ref: "#/definitions/Notification"
+
+  /assetTypes/{id}/LifeCycle/Graph:
+    x-swagger-router-controller: "AssetType"
+    get:
+      tags:
+      - "AssetType"
+      summary: "Imagen de ciclo de vida"
+      description: "Imagen del ciclo de vida asociado al tipo de activo solicitado\n"
+      operationId: "graphAtIdGet"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "identificador del tipo de activo."
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Tipo de activo por id."
+          schema:
+            $ref: "#/definitions/LifeCycleGraph"
+        404:
+          description: "Recurso no encontrado"
+          schema:
+            $ref: "#/definitions/Notification"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Notification"
   /assets:
     x-swagger-router-controller: "Asset"
     get:
@@ -1008,6 +1036,11 @@ definitions:
     properties:
       id:
         type: string
+  LifeCycleGraph:
+    type: "object"
+    properties:
+      img:
+        type: "string"
   Notification:
     type: "object"
     properties:

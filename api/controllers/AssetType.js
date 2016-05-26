@@ -2,6 +2,7 @@
 
 var AssetType  = require('../models/AssetType');
 var Util  = require('./Util');
+var exec = require('child_process').exec;
 
 var notFoundMessage = {
   code : 404,
@@ -117,30 +118,84 @@ function atIdPut(req, res) {
 function atIdDelete(req, res) {
   // body...
   if (req.swagger.params.id.value.match(/^[0-9a-fA-F]{24}$/)) {
-    if (req.swagger.params.id.value.match(/^[0-9a-fA-F]{24}$/)) {
-      AssetType.findById(req.swagger.params.id.value, function (err, at) {
-        if (err) {
-          res.status(500).json(err);
+    AssetType.findById(req.swagger.params.id.value, function (err, at) {
+      if (err) {
+        res.status(500).json(err);
+      } else {
+        if(at === null){
+          res.status(404).json(notFoundMessage);
         } else {
-          if(at === null){
-            res.status(404).json(notFoundMessage);
-          } else {
-            at.deleted = true;
-            at.save(function (err) {
-              if (err) {
-                res.status(500).json(err);
-              } else {
-                var response = {code:200, message:"El tipo de activo ha sido eliminado correctamente."};
-                res.status(200).json(response);
-              }
-            });
-          }
+          at.deleted = true;
+          at.save(function (err) {
+            if (err) {
+              res.status(500).json(err);
+            } else {
+              var response = {code:200, message:"El tipo de activo ha sido eliminado correctamente."};
+              res.status(200).json(response);
+            }
+          });
         }
-      });
-    } else {
-      res.status(404).json(notFoundMessage);
-    }
+      }
+    });
+  } else {
+    res.status(404).json(notFoundMessage);
   }
+}
+
+function graphAtIdGet(req, res) {
+  if (!req.swagger.params.id.value.match(/^[0-9a-fA-F]{24}$/)) {
+    res.status(404).json(notFoundMessage);
+    return;
+  }
+  AssetType.findById(req.swagger.params.id.value, function (err, at) {
+    if (err) {
+      res.status(500).json(err);
+      return;
+    }
+    if(at === null){
+      res.status(404).json(notFoundMessage);
+      return;
+    }
+
+    ////////////////////////////////////////////////
+    var graph = at.lifeCycle;
+    var stateGraph = " ";
+    var auxGraph = graph[0].name.replace(" ", "_");
+    var confGraph = 'digraph life_cycle { rankdir=LR; node [shape = doublecircle]; '+auxGraph+' ';
+
+    for (var i=0;i<graph.length;i++) {
+      if (graph[i].isFinal) {
+
+        auxGraph = graph[i].name.replace(" ","_");
+        confGraph += auxGraph+'; node [shape = circle]; ';
+      }
+      for ( var j=0;j<graph[i].adjacents.length;j++) {
+        if (!graph[i].isFinal) {
+          auxGraph = graph[i].name.replace(" ","_");
+          var auxGraph2 = graph[i].adjacents[j].replace(" ","_");
+
+          stateGraph += auxGraph+' -> '+auxGraph2+'; ';
+        }
+      }
+    }
+    stateGraph += " }";
+    confGraph += stateGraph;
+
+    var cmd = 'echo "' +confGraph+ '" | dot -Tpng';
+    var options = {
+      encoding: 'binary',
+      timeout: 0,
+      maxBuffer: 200*1024,
+      killSignal: 'SIGTERM',
+      cwd: null,
+      env: null
+    };
+    exec(cmd, options,function (err, stdout, stderr) {
+      var buffer = new Buffer(stdout, 'binary');
+      res.status(200).json({graph:buffer.toString("base64")});
+    });
+    ///////////////////////////////////////////////
+  });
 }
 
 module.exports = {
@@ -148,5 +203,6 @@ module.exports = {
   atPost: atPost,
   atIdGet: atIdGet,
   atIdPut: atIdPut,
-  atIdDelete: atIdDelete
+  atIdDelete: atIdDelete,
+  graphAtIdGet: graphAtIdGet
 };
