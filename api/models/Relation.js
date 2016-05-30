@@ -8,6 +8,7 @@ var Relation = new Schema({
   assetId : {type: Schema.Types.ObjectId, ref: 'Asset'},
   relatedAssetId : {type: Schema.Types.ObjectId, ref: 'Asset'},
   relationTypeId :{type: Schema.Types.String, ref: 'RelationType'},
+  counterRelation : {type: Schema.Types.ObjectId, ref: 'Relation'},
   deleted: Boolean,
   comment: String
 });

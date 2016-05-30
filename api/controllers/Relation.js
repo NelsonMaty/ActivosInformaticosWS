@@ -82,6 +82,7 @@ function relationPost(req, res) {
             newRelation2.isIncomingRel = true;
             newRelation2.assetId = req.body.relatedAssetId;
             newRelation2.relatedAssetId = req.swagger.params.id.value;
+            newRelation2.counterRelation = relation.id; // set counter relation 1
 
             newRelation2.save(function (err, relation2) {
               if(err){
@@ -89,9 +90,18 @@ function relationPost(req, res) {
                 res.status(500).json(err);
                 return;
               }
-              var response = {code:201, id:relation._id};
-              res.location('/assets/' + req.swagger.params.id.value + '/relations/' + relation.id);
-              res.status(201).json(response);
+              newRelation.counterRelation = relation2.id; // set counter relation 2
+              newRelation.save(function (err,relation) {
+                if(err){
+                  console.log(err);
+                  res.status(500).json(err);
+                  return;
+                }
+  // 8 - Response
+                var response = {code:201, id:relation._id};
+                res.location('/assets/' + req.swagger.params.id.value + '/relations/' + relation.id);
+                res.status(201).json(response);
+              });
             });
           });
         });
@@ -133,8 +143,8 @@ function relationGet(req, res) {
             delete response[i].isIncomingRel;
             response[i].id = response[i]._id;
             delete response[i]._id;
+            delete response[i].counterRelation;
           }
-          console.log(response);
           res.status(200).json(response);
         }
       });
@@ -173,10 +183,10 @@ function counterRelationGet(req, res) {
             delete response[i].deleted;
             delete response[i].assetId;
             delete response[i].isIncomingRel;
+            delete response[i].counterRelation;
             response[i].id = response[i]._id;
             delete response[i]._id;
           }
-          console.log(response);
           res.status(200).json(response);
         }
       });
@@ -222,6 +232,8 @@ function relationIdGet(req, res) {
         else {
           var response = relation.toJSON();
           delete response.assetId;
+          delete response.isIncomingRel;
+          delete response.counterRelation;
           res.status(200).json(response);
         }
       }
@@ -313,6 +325,7 @@ function relationDelete(req, res) {
     Relation.findById(req.swagger.params.relId.value, function (err, relation) {
       if(err){
         res.status(500).json(err);
+        return;
       }
       else {
         if(relation===null){
@@ -324,9 +337,24 @@ function relationDelete(req, res) {
           relation.save(function (err) {
             if (err) {
               res.status(500).json(err);
+              return;
             } else {
-              var response = {code:200, message:"La relacion ha sido eliminada correctamente."};
-              res.status(200).json(response);
+  // 5 - Delete counter relation
+              Relation.findById(relation.counterRelation, function (err, relation2) {
+                if (err) {
+                  res.status(500).json(err);
+                  return;
+                }
+                relation2.deleted = true;
+                relation2.save(function (err) {
+                  if (err) {
+                    res.status(500).json(err);
+                    return;
+                  }
+                  var response = {code:200, message:"La relacion ha sido eliminada correctamente."};
+                  res.status(200).json(response);
+                });
+              });
             }
           });
         }

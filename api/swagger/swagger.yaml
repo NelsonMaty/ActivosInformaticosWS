@@ -262,7 +262,7 @@ paths:
         type: "string"
       responses:
         200:
-          description: "Tipo de activo por id."
+          description: "Imagen de ciclo de vida"
           schema:
             $ref: "#/definitions/LifeCycleGraph"
         404:
@@ -414,6 +414,34 @@ paths:
           description: "Activo borrado."
           schema:
             $ref: "#/definitions/Notification"
+        404:
+          description: "Recurso no encontrado"
+          schema:
+            $ref: "#/definitions/Notification"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Notification"
+
+  /assets/{id}/LifeCycle/Graph:
+    x-swagger-router-controller: "Asset"
+    get:
+      tags:
+      - "Asset"
+      summary: "Imagen de ciclo de vida marcando estado actual"
+      description: "Imagen del ciclo de vida asociado al activo solicitado indicando el estado actual\n"
+      operationId: "graphIdGet"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "identificador del tipo de activo."
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Imagen de ciclo de vida"
+          schema:
+            $ref: "#/definitions/LifeCycleGraph"
         404:
           description: "Recurso no encontrado"
           schema:
