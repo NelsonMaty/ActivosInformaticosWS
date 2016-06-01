@@ -952,6 +952,7 @@ definitions:
         type: "string"
         required:
           - typeId
+          # - estadoActual
         description: id del tipo de activo
       id:
         type: "string"
@@ -959,6 +960,9 @@ definitions:
       deleted:
         type: "boolean"
         description: "indica si el activo se encuentra borrado"
+      estadoActual:
+        type: "string"
+        description: nombre del estado actual del activo en su ciclo de vida
       anyProperty:
         type: ["string", "integer", "number", "boolean"]
         description: "Propiedad y valor. Pueden agregarse cuantas propiedades sean necesarias y del tipo que sean necesarias."
@@ -1028,10 +1032,16 @@ definitions:
         description: "comentario acerca de la relación"
   NewAsset:
     type: "object"
+    required:
+      - typeId
+      # - estadoActual
     properties:
       typeId:
         type: "string"
         description: id del tipo de activo
+      estadoActual:
+        type: "string"
+        description: nombre del estado actual del activo en su ciclo de vida
       anyProperty:
         type: ["string", "integer", "number", "boolean"]
         description: "Propiedad y valor. Pueden agregarse cuantas propiedades sean necesarias y del tipo que sean necesarias."

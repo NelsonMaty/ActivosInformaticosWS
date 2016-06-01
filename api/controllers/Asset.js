@@ -229,7 +229,8 @@ function graphIdGet(req, res) {
       ////////////////////////////////////////////////
       var graph = at.lifeCycle;
       var stateGraph = " ";
-      var auxGraph = graph[0].name.replace(" ", "_");
+      var auxGraph = asset.value.estadoActual.replace(" ", "_")  + " [style=filled, fillcolor=yellow];";
+      auxGraph += graph[0].name.replace(" ", "_");
       var confGraph = 'digraph life_cycle { rankdir=LR; node [shape = doublecircle]; '+auxGraph+' ';
 
 
@@ -251,7 +252,7 @@ function graphIdGet(req, res) {
       }
       stateGraph += " }";
       confGraph += stateGraph;
-      
+
       console.log(confGraph);
       var cmd = 'echo "' +confGraph+ '" | dot -Tpng';
       var options = {
