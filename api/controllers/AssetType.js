@@ -198,11 +198,29 @@ function graphAtIdGet(req, res) {
   });
 }
 
+
+function graphPreview(req, res) {
+  var cmd = 'echo "' +req.body.graph+ '" | dot -Tpng';
+  var options = {
+    encoding: 'binary',
+    timeout: 0,
+    maxBuffer: 200*1024,
+    killSignal: 'SIGTERM',
+    cwd: null,
+    env: null
+  };
+  exec(cmd, options,function (err, stdout, stderr) {
+    var buffer = new Buffer(stdout, 'binary');
+    res.status(200).json({img:buffer.toString("base64")});
+  });
+}
+
 module.exports = {
   atGet: atGet,
   atPost: atPost,
   atIdGet: atIdGet,
   atIdPut: atIdPut,
   atIdDelete: atIdDelete,
-  graphAtIdGet: graphAtIdGet
+  graphAtIdGet: graphAtIdGet,
+  graphPreview: graphPreview
 };

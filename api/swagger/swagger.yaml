@@ -18,6 +18,30 @@ consumes:
 produces:
   - application/json
 paths:
+  /graph:
+    x-swagger-router-controller: "AssetType"
+    get:
+      tags:
+      - "AssetType"
+      summary: "Imagen de ciclo de vida para previsualizar"
+      description: "Imagen del ciclo de vida de previsualizacion\n"
+      operationId: "graphPreview"
+      parameters:
+      - in: "body"
+        name: "confGraph"
+        description: "Esquema graphviz."
+        required: true
+        schema:
+          $ref: "#/definitions/LifeCycleGraph"
+      responses:
+        200:
+          description: "Imagen de ciclo de vida"
+          schema:
+            $ref: "#/definitions/LifeCycleGraph"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Notification"
   /users:
     x-swagger-router-controller: "User"
     get:
