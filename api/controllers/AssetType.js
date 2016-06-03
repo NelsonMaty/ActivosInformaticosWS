@@ -200,7 +200,8 @@ function graphAtIdGet(req, res) {
 
 
 function graphPreview(req, res) {
-  var cmd = 'echo "' +req.body.confGraph+ '" | dot -Tpng';
+  console.log(req.body);
+  var cmd = 'echo "' +req.body.img+ '" | dot -Tpng';
   var options = {
     encoding: 'binary',
     timeout: 0,
