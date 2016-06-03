@@ -20,7 +20,7 @@ produces:
 paths:
   /graph:
     x-swagger-router-controller: "AssetType"
-    get:
+    post:
       tags:
       - "AssetType"
       summary: "Imagen de ciclo de vida para previsualizar"
