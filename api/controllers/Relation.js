@@ -3,6 +3,8 @@
 var Relation = require('../models/Relation');
 var RelationType  = require('../models/RelationType');
 var Asset  = require('../models/Asset');
+var AssetType  = require('../models/AssetType');
+
 
 var Util  = require('./Util');
 
@@ -363,11 +365,96 @@ function relationDelete(req, res) {
   });
 }
 
+function formatNode(node){
+  if(typeof node.toObject === 'function') {
+    node = node.toObject();
+  }
+  node.name = node.value.name;
+  node.assetType = node.typeId;
+  delete node.typeId;
+  delete node.value;
+  delete node.deleted;
+  delete node.__v;
+  return node;
+}
+
+function populateAssetType(relatedAsset) {
+  AssetType.findById(relatedAsset.typeId, function (err, at) {
+    if(err){
+      return;
+    }
+    relatedAsset.typeId = at.toObject();
+    relatedAsset = formatNode(relatedAsset);
+    console.log(relatedAsset);
+    return relatedAsset;
+  });
+}
+
+function formatRelations(rels) {
+  var relations = [];
+  rels.forEach(function (rel) {
+    rel = rel.toObject();
+    rel.relationLabel = rel.relationTypeId.outLabel;
+    delete rel.relationTypeId;
+    rel.relatedAsset = formatNode(rel.relatedAssetId);
+    rel.relatedAsset.relations = [];
+    delete rel.relatedAssetId;
+    delete rel.deleted;
+    delete rel.isIncomingRel;
+    delete rel.assetId;
+    delete rel.counterRelation;
+    delete rel.__v;
+    delete rel.isCritical;
+    delete rel._id;
+    relations.push(rel);
+  });
+  // console.log(relations);
+  return relations;
+}
+
+function relationsTreeGet(req, res) {
+  // 1 - Check if the source asset id provided is valid
+  if (!req.swagger.params.id.value.match(/^[0-9a-fA-F]{24}$/)){
+    resNotFound(res,"No se encontró ningun activo con id " + req.swagger.params.id.value );
+    return;
+  }
+  var tree = {
+    id: req.swagger.params.id.value
+  };
+  tree.relations = [];
+
+  // 2 - Find asset by provided id
+  Asset.findById(req.swagger.params.id.value)
+  .populate("typeId", "name")
+  .exec(function (err, a) {
+    if(err){
+      res.status(500).json(err);
+      return;
+    }
+  // 3 - Check if the source asset exists
+    if(a===null){
+      resNotFound(res,"No se encontró ningun activo con el id " + req.swagger.params.id.value );
+      return;
+    }
+    tree = formatNode(a);
+    Relation.find({assetId:a._id, isIncomingRel:false})
+    .populate({path:"relatedAssetId relationTypeId", populate:{path:"typeId",model:"AssetType",select:"name"}})
+    .exec(function(err, rels){
+      console.log(JSON.stringify(rels, null, 4));
+      tree.relations = formatRelations(rels);
+      // console.log(rels.length);
+    // console.log(JSON.stringify(tree, null, 4));
+      res.status(200).json(tree);
+    });
+  });
+}
+
 module.exports = {
   relationGet: relationGet,
   relationIdGet: relationIdGet,
   relationPost: relationPost,
   relationPut: relationPut,
   relationDelete: relationDelete,
-  counterRelationGet: counterRelationGet
+  counterRelationGet: counterRelationGet,
+  relationsTreeGet: relationsTreeGet
 };
