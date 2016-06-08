@@ -545,6 +545,11 @@ paths:
           description: "identifcador del activo del cual se quieren conocer las relaciones"
           required: true
           type: "string"
+        - name: "depth"
+          in: "query"
+          description: "altura maxima del arbol de relaciones (1 valor por defecto)"
+          required: false
+          type: "integer"
       responses:
         200:
           description: "Arbol de activos relacionados"

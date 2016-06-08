@@ -413,6 +413,13 @@ function formatRelations(rels) {
 }
 
 function relationsTreeGet(req, res) {
+  var depth;
+  if(!req.swagger.params.depth.value){
+    depth = req.swagger.params.depth.value;
+  }
+  else {
+    depth = 1;
+  }
   // 1 - Check if the source asset id provided is valid
   if (!req.swagger.params.id.value.match(/^[0-9a-fA-F]{24}$/)){
     resNotFound(res,"No se encontró ningun activo con id " + req.swagger.params.id.value );
@@ -437,7 +444,7 @@ function relationsTreeGet(req, res) {
       return;
     }
     tree = formatNode(a);
-    Relation.find({assetId:a._id, isIncomingRel:false})
+    Relation.find({assetId:a._id, isIncomingRel:false, deleted:false})
     .populate({path:"relatedAssetId relationTypeId", populate:{path:"typeId",model:"AssetType",select:"name"}})
     .exec(function(err, rels){
       console.log(JSON.stringify(rels, null, 4));
