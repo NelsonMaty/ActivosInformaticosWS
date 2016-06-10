@@ -229,7 +229,7 @@ function graphIdGet(req, res) {
       ////////////////////////////////////////////////
       var graph = at.lifeCycle;
       var stateGraph = " ";
-      var auxGraph = asset.value.estadoActual.replace(" ", "_")  + " [style=filled, fillcolor=yellow];";
+      var auxGraph = asset.value.estadoActual.replace(" ", "_")  + " [style=filled, fillcolor=yellow, shape = circle];";
       auxGraph += graph[0].name.replace(" ", "_");
       var confGraph = 'digraph life_cycle { rankdir=LR; node [shape = doublecircle]; '+auxGraph+' ';
 
