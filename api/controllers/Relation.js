@@ -378,27 +378,34 @@ function formatNode(node){
   return node;
 }
 
-function populateAssetType(relatedAsset) {
-  AssetType.findById(relatedAsset.typeId, function (err, at) {
-    if(err){
-      return;
-    }
-    relatedAsset.typeId = at.toObject();
-    relatedAsset = formatNode(relatedAsset);
-    console.log(relatedAsset);
-    return relatedAsset;
-  });
-}
+// function populateAssetType(relatedAsset) {
+//   AssetType.findById(relatedAsset.typeId, function (err, at) {
+//     if(err){
+//       return;
+//     }
+//     relatedAsset.typeId = at.toObject();
+//     relatedAsset = formatNode(relatedAsset);
+//     console.log(relatedAsset);
+//     return relatedAsset;
+//   });
+// }
 
-function formatRelations(rels) {
+function formatRelations(rels, isIncoming) {
   var relations = [];
   rels.forEach(function (rel) {
     rel = rel.toObject();
     rel.relationLabel = rel.relationTypeId.outLabel;
     delete rel.relationTypeId;
-    rel.relatedAsset = formatNode(rel.relatedAssetId);
+    if(!isIncoming){
+      rel.relatedAsset = formatNode(rel.relatedAssetId);
+      delete rel.relatedAssetId;
+    }
+    else {
+      console.log(rel);
+      rel.relatedAsset = formatNode(rel.assetId);
+      delete rel.assetId;
+    }
     rel.relatedAsset.relations = [];
-    delete rel.relatedAssetId;
     delete rel.deleted;
     delete rel.isIncomingRel;
     delete rel.assetId;
@@ -429,6 +436,7 @@ function relationsTreeGet(req, res) {
     id: req.swagger.params.id.value
   };
   tree.relations = [];
+  tree.incomingRelations = [];
 
   // 2 - Find asset by provided id
   Asset.findById(req.swagger.params.id.value)
@@ -447,11 +455,23 @@ function relationsTreeGet(req, res) {
     Relation.find({assetId:a._id, isIncomingRel:false, deleted:false})
     .populate({path:"relatedAssetId relationTypeId", populate:{path:"typeId",model:"AssetType",select:"name"}})
     .exec(function(err, rels){
-      console.log(JSON.stringify(rels, null, 4));
-      tree.relations = formatRelations(rels);
+      if(err){
+        res.status(500).json(err);
+        return;
+      }
+      tree.relations = formatRelations(rels, false);
       // console.log(rels.length);
     // console.log(JSON.stringify(tree, null, 4));
-      res.status(200).json(tree);
+    Relation.find({relatedAssetId:a._id, isIncomingRel:false, deleted:false})
+    .populate({path:"assetId relationTypeId", populate:{path:"typeId",model:"AssetType",select:"name"}})
+      .exec(function (err, incomRels) {
+        if(err){
+          res.status(500).json(err);
+          return;
+        }
+        tree.incomingRelations = formatRelations(incomRels, true);
+        res.status(200).json(tree);
+      });
     });
   });
 }
