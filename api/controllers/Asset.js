@@ -1,6 +1,8 @@
 'use strict';
 
 var Asset  = require('../models/Asset');
+var HistoryAsset = Asset.historyModel();
+var ObjectId = require('mongoose').Types.ObjectId;
 var AssetType  = require('../models/AssetType');
 var Util = require('./Util');
 var exec = require('child_process').exec;
@@ -272,6 +274,47 @@ function graphIdGet(req, res) {
   });
 }
 
+function assetVersionsGet(req, res) {
+  if (!req.swagger.params.id.value.match(/^[0-9a-fA-F]{24}$/)){
+    res.status(404).json({
+      code: 404,
+      message: "No se encontró ningun activo con id " + req.swagger.params.id.value
+    });
+    return;
+  }
+  Asset.findById(req.swagger.params.id.value, function (err, a) {
+    if(err){
+      res.status(500).json(err);
+      return;
+    }
+    if(a===null){
+      res.status(404).json({
+        code: 404,
+        message: "No se encontró ningun activo con id " + req.swagger.params.id.value
+      });
+      return;
+    }
+    HistoryAsset.find({"d._id": new ObjectId(req.swagger.params.id.value)},null, {sort: '-t'}, function (err, versions) {
+      if(err){
+        res.status(500).json(err);
+        return;
+      }
+      var response = [];
+      for (var i = 0; i < versions.length; i++) {
+        response.push(versions[i].toJSON());
+        response[i].asset = response[i].d;
+        delete response[i].d;
+        response[i].date = response[i].t;
+        delete response[i].t;
+        response[i].idVersion = response[i]._id;
+        delete response[i]._id;
+        delete response[i].o;
+      }
+      res.status(200).json(response);
+      return;
+    });
+  });
+}
 
 module.exports = {
   assetsGet: assetsGet,
@@ -280,5 +323,6 @@ module.exports = {
   assetsGetByType: assetsGetByType,
   assetIdDelete: assetIdDelete,
   assetIdPut: assetIdPut,
-  graphIdGet: graphIdGet
+  graphIdGet: graphIdGet,
+  assetVersionsGet: assetVersionsGet
 };

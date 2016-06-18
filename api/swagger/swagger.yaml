@@ -474,56 +474,26 @@ paths:
           description: "Error interno del servidor"
           schema:
             $ref: "#/definitions/Notification"
-  /assets/{id}/relations:
-    x-swagger-router-controller: "Relation"
+  /assets/{id}/versions:
+    x-swagger-router-controller: "Asset"
     get:
       tags:
-        - "Relation"
-      description: "Listado de relaciones hacia otros activos"
-      operationId: "relationGet"
+        - "Asset"
+      description: "Listado de versiones de un activo"
+      operationId: "assetVersionsGet"
       parameters:
         - name: "id"
           in: "path"
-          description: "identifcador del activo del cual se quieren conocer las relaciones"
+          description: "identifcador del activo del cual se quieren conocer las versiones"
           required: true
           type: "string"
       responses:
         200:
-          description: "Listado de relaciones"
+          description: "Listado de versiones"
           schema:
             type: "array"
             items:
-              $ref: "#/definitions/Relation"
-        404:
-          description: "Activo no encontrado"
-          schema:
-            $ref: "#/definitions/Notification"
-        500:
-          description: "Error interno del servidor"
-          schema:
-            $ref: "#/definitions/Notification"
-    post:
-      tags:
-        - "Relation"
-      description: "Registrar una nueva relacion"
-      operationId: "relationPost"
-      parameters:
-        - name: "id"
-          in: "path"
-          description: "identifcador del activo del cual se quieren conocer las relaciones"
-          required: true
-          type: "string"
-        - in: "body"
-          name: "relation"
-          description: "Relacion a registrar en el sistema"
-          required: true
-          schema:
-            $ref: "#/definitions/NewRelation"
-      responses:
-        201:
-          description: "Relacion creada"
-          schema:
-            $ref: "#/definitions/Notification"
+              $ref: "#/definitions/AssetVersion"
         404:
           description: "Activo no encontrado"
           schema:
@@ -1005,8 +975,6 @@ definitions:
     properties:
       typeId:
         type: "string"
-        required:
-          - typeId
           # - estadoActual
         description: id del tipo de activo
       id:
@@ -1021,6 +989,18 @@ definitions:
       anyProperty:
         type: ["string", "integer", "number", "boolean"]
         description: "Propiedad y valor. Pueden agregarse cuantas propiedades sean necesarias y del tipo que sean necesarias."
+  AssetVersion:
+    type: "object"
+    properties:
+      versionId:
+        type: "string"
+      date:
+        type: "string"
+      asset:
+        type: "object"
+        properties:
+          schema:
+            $ref: "#/definitions/Asset"
   AssetTree:
     type: "object"
     properties:
