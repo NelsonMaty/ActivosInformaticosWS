@@ -1,6 +1,7 @@
 'use strict';
 
 var Asset  = require('../models/Asset');
+var Relation = require('../models/Relation');
 var HistoryAsset = Asset.historyModel();
 var ObjectId = require('mongoose').Types.ObjectId;
 var AssetType  = require('../models/AssetType');
@@ -144,24 +145,33 @@ function assetIdDelete(req, res) {
     Asset.findById(req.swagger.params.id.value, function(err, asset) {
       if (err){
         res.status(500).json(err);
+        return;
       }
-      else {
-        if(asset===null){
-          res.status(404).json(notFoundMessage);
+      if(asset===null){
+        res.status(404).json(notFoundMessage);
+        return;
+      }
+      asset.deleted = true;
+      // save the asset
+      asset.save(function(err) {
+        if (err){
+          res.status(500).json(notFoundMessage);
+          return;
         }
-        else{
-          asset.deleted = true;
-          // save the asset
-          asset.save(function(err) {
+        //delete all relations associated with asset
+        Relation.update(
+          {$or:[{assetId:req.swagger.params.id.value},{relatedAssetId:req.swagger.params.id.value}]},
+          {deleted:true},
+          {multi:true},
+          function (err) {
             if (err){
               res.status(500).json(notFoundMessage);
-            } else {
-              var response = {code:200, message:"El activo se ha eliminado correctamente."};
-              res.status(200).json(response);
+              return;
             }
+          var response = {code:200, message:"El activo se ha eliminado correctamente."};
+          res.status(200).json(response);
           });
-        }
-      }
+      });
     });
 
   } else {

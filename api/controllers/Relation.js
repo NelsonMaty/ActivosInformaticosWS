@@ -3,7 +3,6 @@
 var Relation = require('../models/Relation');
 var RelationType  = require('../models/RelationType');
 var Asset  = require('../models/Asset');
-var AssetType  = require('../models/AssetType');
 
 
 var Util  = require('./Util');
