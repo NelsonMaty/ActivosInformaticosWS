@@ -6,6 +6,7 @@ var ObjectId = require('mongoose').Types.ObjectId;
 var AssetType  = require('../models/AssetType');
 var Util = require('./Util');
 var exec = require('child_process').exec;
+var _ = require('lodash/core');
 
 
 var notFoundMessage = {
@@ -184,10 +185,13 @@ function assetIdPut(req, res) {
           delete req.body.__v;
           delete req.body.deleted;
           delete req.body.typeId;
-
+          if(_.isEqual(req.body,asset.toJSON().value)){
+            var response = {code:304, message:"No se detectaron cambios en el activo."};
+            res.status(304).json(response);
+            return;
+          }
           Util.extend(asset.value, req.body);
           asset.markModified("value");
-
           asset.save(function(err) {
             if (err){
               res.status(500).json(err);

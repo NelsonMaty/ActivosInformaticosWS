@@ -413,6 +413,10 @@ paths:
           description: "Activo actualizado."
           schema:
             $ref: "#/definitions/Notification"
+        304:
+          description: "No se detectaron cambios en el activo."
+          schema:
+            $ref: "#/definitions/Notification"
         404:
           description: "Recurso no encontrado"
           schema:
