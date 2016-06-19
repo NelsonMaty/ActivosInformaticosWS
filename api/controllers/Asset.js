@@ -304,6 +304,8 @@ function assetVersionsGet(req, res) {
         response.push(versions[i].toJSON());
         response[i].asset = response[i].d;
         delete response[i].d;
+        response[i].asset = Util.extend(response[i].asset, response[i].asset.value);
+        delete response[i].asset.value;
         response[i].date = response[i].t;
         delete response[i].t;
         response[i].idVersion = response[i]._id;
