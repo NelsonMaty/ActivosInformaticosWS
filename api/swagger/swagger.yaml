@@ -305,7 +305,12 @@ paths:
       summary: "Consulta de activos"
       description: "Listado de todos los activos registrados en el sistema"
       operationId: "assetsGet"
-      parameters: []
+      parameters:
+        - name: "elasticSearch"
+          in: "query"
+          description: "string a buscar"
+          required: false
+          type: "string"
       responses:
         200:
           description: "Listado de activos"
@@ -498,6 +503,64 @@ paths:
             type: "array"
             items:
               $ref: "#/definitions/AssetVersion"
+        404:
+          description: "Activo no encontrado"
+          schema:
+            $ref: "#/definitions/Notification"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Notification"
+  /assets/{id}/relations:
+    x-swagger-router-controller: "Relation"
+    get:
+      tags:
+        - "Relation"
+      description: "Listado de relaciones hacia otros activos"
+      operationId: "relationGet"
+      parameters:
+        - name: "id"
+          in: "path"
+          description: "identifcador del activo del cual se quieren conocer las relaciones"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Listado de relaciones"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Relation"
+        404:
+          description: "Activo no encontrado"
+          schema:
+            $ref: "#/definitions/Notification"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Notification"
+    post:
+      tags:
+        - "Relation"
+      description: "Registrar una nueva relacion"
+      operationId: "relationPost"
+      parameters:
+        - name: "id"
+          in: "path"
+          description: "identifcador del activo del cual se quieren conocer las relaciones"
+          required: true
+          type: "string"
+        - in: "body"
+          name: "relation"
+          description: "Relacion a registrar en el sistema"
+          required: true
+          schema:
+            $ref: "#/definitions/NewRelation"
+      responses:
+        201:
+          description: "Relacion creada"
+          schema:
+            $ref: "#/definitions/Notification"
         404:
           description: "Activo no encontrado"
           schema:
