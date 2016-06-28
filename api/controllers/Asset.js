@@ -17,7 +17,30 @@ var notFoundMessage = {
 
 function assetsGet(req, res) {
   // body...
-
+  if(req.swagger.params.elasticSearch.value){
+    Asset.search({
+      query_string: {
+        query: req.swagger.params.elasticSearch.value
+      }
+    }, function(err, results) {
+      console.log(results.hits.hits[0]._source);
+      if(err){
+        res.status(500).json(err);
+      }
+      else {
+        var response = [];
+        for (var i = 0; i < results.hits.hits.length; i++) {
+          response.push(results.hits.hits[i]._source);
+          response[i] = Util.extend(response[i], response[i].value);
+          delete response[i].value;
+          // response[i].typeId = assets[i].typeId;
+          // if(i == assets.length-1)
+        }
+        res.status(200).json(response);
+      }
+    });
+    return;
+  }
   Asset.find({deleted:false}, function (err, assets) {
     if(err){
       res.status(500).json(err);

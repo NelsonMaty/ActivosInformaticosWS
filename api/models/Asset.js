@@ -1,5 +1,6 @@
 var mongoose   = require('mongoose');
 var mongooseHistory = require('mongoose-history');
+var mongoosastic = require('mongoosastic');
 var Schema     = mongoose.Schema;
 
 
@@ -11,4 +12,20 @@ var Asset = new Schema({
 
 Asset.plugin(mongooseHistory);
 
+Asset.plugin(mongoosastic);
+
 module.exports = mongoose.model('Asset', Asset);
+
+// var Asset2 = mongoose.model('Asset', Asset)
+//   , stream = Asset2.synchronize()
+//   , count = 0;
+//
+// stream.on('data', function(err, doc){
+//   count++;
+// });
+// stream.on('close', function(){
+//   console.log('indexed ' + count + ' documents!');
+// });
+// stream.on('error', function(err){
+//   console.log(err);
+// });
