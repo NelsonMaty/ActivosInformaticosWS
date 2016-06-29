@@ -21,15 +21,34 @@ function getMongoQuery(stringQuery) {
   for (var key in aux) {
     //ver con Ands y Ors
     formatedAttribute = "value." + key;
-    aux[formatedAttribute] = aux[key];
+    if(typeof aux[key] == "string"){
+        aux[formatedAttribute] = new RegExp(aux[key], "i");
+    }
+    else {
+      aux[formatedAttribute] = aux[key];
+    }
     delete aux[key];
   }
   return aux;
 }
 
 function assetsGet(req, res) {
-  if(req.swagger.params.mongoSearch.value){
-    var mongoQuery = getMongoQuery(req.swagger.params.mongoSearch.value);
+
+  // 1) First case, a patternSearch has been requested
+  if(req.swagger.params.patternSearch.value){
+    //1.1 Check if the request is a valid json
+    var aux;
+    try{
+      aux = JSON.parse(req.swagger.params.patternSearch.value);
+    }catch(error){
+      res.status(400).json({message: "Syntax error"});
+      return;
+    }
+
+    //1.2 Format the request appropriately, acording to our mongodb structure
+    var mongoQuery = getMongoQuery(req.swagger.params.patternSearch.value);
+
+    //1.3 Perform the search
     Asset.find(mongoQuery, function(err, assets) {
       if(err){
         res.status(500).json(err);
@@ -39,7 +58,6 @@ function assetsGet(req, res) {
         for (var i = 0; i < assets.length; i++) {
           response.push(assets[i].toJSON());
           response[i] = Util.extend(response[i], response[i].value);
-
           delete response[i].value;
           // response[i].typeId = assets[i].typeId;
           // if(i == assets.length-1)
@@ -49,14 +67,13 @@ function assetsGet(req, res) {
     });
     return;
   }
-  // body...
-  if(req.swagger.params.elasticSearch.value){
+  // 2) Second case, an Elastic Search has been requested
+  else if(req.swagger.params.elasticSearch.value){
     Asset.search({
       query_string: {
         query: req.swagger.params.elasticSearch.value
       }
     }, function(err, results) {
-      console.log(results.hits.hits[0]._source);
       if(err){
         res.status(500).json(err);
       }
@@ -74,7 +91,41 @@ function assetsGet(req, res) {
     });
     return;
   }
-  Asset.find({deleted:false}, function (err, assets) {
+
+  // 3) Third case, search by asset type name
+  else if(req.swagger.params.assetTypeName.value){
+    var query = new RegExp(req.swagger.params.assetTypeName.value, "i");
+    AssetType.findOne({name: query}, function (err, at) {
+      if(err){
+        res.status(500).json(err);
+        return;
+      }
+      var response = [];
+      if(at===null){
+        console.log(at);
+        res.status(200).json(response);
+        return;
+      }
+      Asset.find({typeId: at._id},function (err, assets) {
+        if(err){
+          res.status(500).json(err);
+          return;
+        }
+        var response = [];
+        for (var i = 0; i < assets.length; i++) {
+          response.push(assets[i].toJSON());
+          response[i] = Util.extend(response[i], response[i].value);
+          delete response[i].value;
+        }
+        res.status(200).json(response);
+        return;
+      });
+    });
+  }
+
+  // 4) Fourth case, a list of all assets has been requested (no searching needed)
+  else {
+    Asset.find({deleted:false}, function (err, assets) {
     if(err){
       res.status(500).json(err);
     }
@@ -83,14 +134,12 @@ function assetsGet(req, res) {
       for (var i = 0; i < assets.length; i++) {
         response.push(assets[i].toJSON());
         response[i] = Util.extend(response[i], response[i].value);
-
         delete response[i].value;
-        // response[i].typeId = assets[i].typeId;
-        // if(i == assets.length-1)
       }
       res.status(200).json(response);
     }
   });
+  }
 }
 
 function assetsPost(req, res) {

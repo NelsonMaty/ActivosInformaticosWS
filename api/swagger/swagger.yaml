@@ -306,14 +306,19 @@ paths:
       description: "Listado de todos los activos registrados en el sistema"
       operationId: "assetsGet"
       parameters:
+        - name: "patternSearch"
+          in: "query"
+          description: "query mongo"
+          required: false
+          type: "string"
         - name: "elasticSearch"
           in: "query"
           description: "string a buscar"
           required: false
           type: "string"
-        - name: "mongoSearch"
+        - name: "assetTypeName"
           in: "query"
-          description: "query mongo"
+          description: "Busqueda por nomre de tipo de activo"
           required: false
           type: "string"
       responses:
@@ -323,6 +328,10 @@ paths:
             type: "array"
             items:
               $ref: "#/definitions/Asset"
+        400:
+          description: "Error en el patron de busqueda. Verifique la sintaxis de la consulta"
+          schema:
+            $ref: "#/definitions/Notification"
         500:
           description: "Error interno del servidor"
           schema:
