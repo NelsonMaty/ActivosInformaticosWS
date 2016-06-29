@@ -311,6 +311,11 @@ paths:
           description: "string a buscar"
           required: false
           type: "string"
+        - name: "mongoSearch"
+          in: "query"
+          description: "query mongo"
+          required: false
+          type: "string"
       responses:
         200:
           description: "Listado de activos"

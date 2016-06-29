@@ -15,7 +15,40 @@ var notFoundMessage = {
   message : "Activo no encontrado"
 };
 
+function getMongoQuery(stringQuery) {
+  var aux = JSON.parse(stringQuery);
+  var formatedAttribute;
+  for (var key in aux) {
+    //ver con Ands y Ors
+    formatedAttribute = "value." + key;
+    aux[formatedAttribute] = aux[key];
+    delete aux[key];
+  }
+  return aux;
+}
+
 function assetsGet(req, res) {
+  if(req.swagger.params.mongoSearch.value){
+    var mongoQuery = getMongoQuery(req.swagger.params.mongoSearch.value);
+    Asset.find(mongoQuery, function(err, assets) {
+      if(err){
+        res.status(500).json(err);
+      }
+      else {
+        var response = [];
+        for (var i = 0; i < assets.length; i++) {
+          response.push(assets[i].toJSON());
+          response[i] = Util.extend(response[i], response[i].value);
+
+          delete response[i].value;
+          // response[i].typeId = assets[i].typeId;
+          // if(i == assets.length-1)
+        }
+        res.status(200).json(response);
+      }
+    });
+    return;
+  }
   // body...
   if(req.swagger.params.elasticSearch.value){
     Asset.search({
