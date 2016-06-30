@@ -16,20 +16,30 @@ var notFoundMessage = {
 };
 
 function getMongoQuery(stringQuery) {
+  console.log(stringQuery);
   var aux = JSON.parse(stringQuery);
   var formatedAttribute;
   for (var key in aux) {
-    //ver con Ands y Ors
-    formatedAttribute = "value." + key;
-    if(typeof aux[key] == "string"){
-        aux[formatedAttribute] = new RegExp(aux[key], "i");
+    //if not an And-Or search
+    if(key[0]!="$"){
+      console.log(key);
+      formatedAttribute = "value." + key;
+      if(typeof aux[key] == "string"){
+          aux[formatedAttribute] = new RegExp(aux[key], "i");
+      }
+      else {
+        aux[formatedAttribute] = aux[key];
+      }
+      delete aux[key];
+      return aux;
     }
     else {
-      aux[formatedAttribute] = aux[key];
+      for (var i = 0; i < aux[key].length; i++) {
+        aux[key][i] = getMongoQuery(JSON.stringify(aux[key][i]));
+      }
+      return aux;
     }
-    delete aux[key];
   }
-  return aux;
 }
 
 function assetsGet(req, res) {
