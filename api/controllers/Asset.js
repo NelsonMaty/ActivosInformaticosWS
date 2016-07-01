@@ -186,8 +186,37 @@ function assetsPost(req, res) {
     }
 
     // 3 - Check if the asset has a valid definition
+    // 3.1 - All the required properties must be present
+    for (var i = 0; i < at.properties.length; i++) {
+      if(at.properties[i].required){
+        if(typeof req.body[at.properties[i].name] === "undefined"){
+          var missingParam = {
+            code : 400,
+            message : "La propiedad '"+at.properties[i].name+"' debe estar definida."
+          };
+          res.status(400).json(missingParam);
+          return;
+        }
+      }
+    }
 
-
+    // 3.2 - Current state must be valid
+    var isValidState = false;
+    for (i = 0; i < at.lifeCycle.length; i++) {
+      if(req.body.estadoActual == at.lifeCycle[i].name){
+        isValidState = true;
+        break;
+      }
+    }
+    if(!isValidState){
+      var invalidState = {
+        code : 400,
+        message : "El estado '"+req.body.estadoActual+"' no existe en el ciclo de vida del activo."
+      };
+      res.status(400).json(invalidState);
+      return;
+    }
+    // 3.3 - Check data types
 
 
     newAsset.deleted = false;
