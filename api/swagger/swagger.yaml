@@ -18,6 +18,21 @@ consumes:
 produces:
   - application/json
 paths:
+  /datatypes:
+    x-swagger-router-controller: "Config"
+    get:
+      tags:
+      - "DataType"
+      summary: "Tipos de datos."
+      description: "Listado con todos los tipos de datos primitivos soportados\n"
+      operationId: "getDataTypes"
+      responses:
+        200:
+          description: "Listado con todos los tipos de datos primitivos soportado"
+          schema:
+            type: "array"
+            items:
+              type: "string"
   /graph:
     x-swagger-router-controller: "AssetType"
     post:
