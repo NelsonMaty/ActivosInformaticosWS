@@ -93,6 +93,7 @@ function assetsGet(req, res) {
           response.push(results.hits.hits[i]._source);
           response[i] = Util.extend(response[i], response[i].value);
           delete response[i].value;
+          response[i]._id = results.hits.hits[i]._id;
           // response[i].typeId = assets[i].typeId;
           // if(i == assets.length-1)
         }
@@ -379,6 +380,9 @@ function assetIdDelete(req, res) {
           var response = {code:200, message:"El activo se ha eliminado correctamente."};
           res.status(200).json(response);
           });
+
+          //remove index from elastic search
+
       });
     });
 
