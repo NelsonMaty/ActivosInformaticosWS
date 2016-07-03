@@ -377,12 +377,19 @@ function assetIdDelete(req, res) {
               res.status(500).json(notFoundMessage);
               return;
             }
-          var response = {code:200, message:"El activo se ha eliminado correctamente."};
-          res.status(200).json(response);
           });
 
           //remove index from elastic search
-
+          asset.unIndex(function (err) {
+            if (err){
+              res.status(500).json(err);
+            }
+            else {
+              var response = {code:200, message:"El activo se ha eliminado correctamente."};
+              res.status(200).json(response);
+            }
+            return;
+          });
       });
     });
 
