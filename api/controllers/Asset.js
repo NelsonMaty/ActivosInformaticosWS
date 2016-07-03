@@ -267,7 +267,7 @@ function assetsPost(req, res) {
       }
     }
 
-    // 3.2 - Current state must be valid
+    // 4 - Current state must be valid
     var isValidState = false;
     for (i = 0; i < at.lifeCycle.length; i++) {
       if(req.body.estadoActual == at.lifeCycle[i].name){
@@ -399,6 +399,8 @@ function assetIdDelete(req, res) {
 }
 
 function assetIdPut(req, res) {
+    var dataType;
+  // 1 - Check if the asset id is valid
   if (req.swagger.params.id.value.match(/^[0-9a-fA-F]{24}$/)) {
     Asset.findById(req.swagger.params.id.value, function(err, asset) {
       if (err){
@@ -419,17 +421,121 @@ function assetIdPut(req, res) {
             res.status(304).json(response);
             return;
           }
-          Util.extend(asset.value, req.body);
-          asset.markModified("value");
-          asset.save(function(err) {
+          // 2 - Check if the assetype exists
+          AssetType.findById(asset.typeId, function(err, at) {
             if (err){
+              console.log(err);
               res.status(500).json(err);
-            } else {
-              var response = {code:200, message:"El activo se ha actualizado correctamente."};
-              res.status(200).json(response);
+              return;
             }
-          });
 
+            if(at===null){
+              var error = {
+                code : 404,
+                message : "Tipo de activo no encontrado"
+              };
+              res.status(404).json(error);
+              return;
+            }
+            var invalidType = {};
+            // 3.0 - Check if the asset has a valid definition
+            for (var i = 0; i < at.properties.length; i++) {
+              dataType = typeof req.body[at.properties[i].name];
+              switch (at.properties[i].type) {
+                case "String":
+                  if( dataType != "string" && dataType != "undefined"){
+                    invalidType = {
+                      code: 400,
+                      message: "La propiedad '"+at.properties[i].name+"' debe ser de tipo String."
+                    };
+                    res.status(400).json(invalidType);
+                    return;
+                  }
+                  break;
+                case "Boolean":
+                  if( dataType != "boolean" && dataType != "undefined"){
+                    invalidType = {
+                      code: 400,
+                      message: "La propiedad '"+at.properties[i].name+"' debe ser de tipo Boolean."
+                    };
+                    res.status(400).json(invalidType);
+                    return;
+                  }
+                  break;
+                case "Integer":
+                  if(!isInt(req.body[at.properties[i].name]) && dataType != "undefined"){
+                    invalidType = {
+                      code: 400,
+                      message: "La propiedad '"+at.properties[i].name+"' debe ser de tipo Integer."
+                    };
+                    res.status(400).json(invalidType);
+                    return;
+                  }
+                  break;
+                case "Float":
+                  if(!isFloat(req.body[at.properties[i].name]) && dataType != "undefined"){
+                    invalidType = {
+                      code: 400,
+                      message: "La propiedad '"+at.properties[i].name+"' debe ser de tipo Float."
+                    };
+                    res.status(400).json(invalidType);
+                    return;
+                  }
+                  break;
+                case "Date":
+                  if(isNaN(Date.parse(req.body[at.properties[i].name])) && dataType != "undefined"){
+                    invalidType = {
+                      code: 400,
+                      message: "La propiedad '"+at.properties[i].name+"' debe ser de tipo Date."
+                    };
+                    res.status(400).json(invalidType);
+                    return;
+                  }
+                  break;
+                case "List":
+                  if(  Object.prototype.toString.call( req.body[at.properties[i].name] ) !== '[object Array]' && dataType != "undefined"){
+                    invalidType = {
+                      code: 400,
+                      message: "La propiedad '"+at.properties[i].name+"' debe ser de tipo List."
+                    };
+                    res.status(400).json(invalidType);
+                    return;
+                  }
+                  break;
+                default:
+              }
+            }
+
+            // 4 - Current state must be valid
+            if(req.body.estadoActual){
+              var isValidState = false;
+              for (i = 0; i < at.lifeCycle.length; i++) {
+                if(req.body.estadoActual == at.lifeCycle[i].name){
+                  isValidState = true;
+                  break;
+                }
+              }
+              if(!isValidState){
+                var invalidState = {
+                  code : 400,
+                  message : "El estado '"+req.body.estadoActual+"' no existe en el ciclo de vida del activo."
+                };
+                res.status(400).json(invalidState);
+                return;
+              }
+            }
+
+            Util.extend(asset.value, req.body);
+            asset.markModified("value");
+            asset.save(function(err) {
+              if (err){
+                res.status(500).json(err);
+              } else {
+                var response = {code:200, message:"El activo se ha actualizado correctamente."};
+                res.status(200).json(response);
+              }
+            });
+          });
         }
       }
     });
