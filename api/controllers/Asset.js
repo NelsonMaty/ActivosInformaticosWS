@@ -156,6 +156,7 @@ function assetsPost(req, res) {
   var newAsset = new Asset();
 
   newAsset.value = {};
+  var dataType;
 
   // 1 - Check if the assetype id is valid
   if (!req.body.typeId.match(/^[0-9a-fA-F]{24}$/)){
@@ -184,10 +185,10 @@ function assetsPost(req, res) {
       res.status(404).json(error);
       return;
     }
-
-    // 3 - Check if the asset has a valid definition
-    // 3.1 - All the required properties must be present
+    var invalidType = {};
+    // 3.0 - Check if the asset has a valid definition
     for (var i = 0; i < at.properties.length; i++) {
+      // 3.0.1 - All the required properties must be present
       if(at.properties[i].required){
         if(typeof req.body[at.properties[i].name] === "undefined"){
           var missingParam = {
@@ -197,6 +198,71 @@ function assetsPost(req, res) {
           res.status(400).json(missingParam);
           return;
         }
+      }
+      // 3.0.2 - Data types must be valid
+      dataType = typeof req.body[at.properties[i].name];
+      switch (at.properties[i].type) {
+        case "String":
+          if( dataType != "string" && dataType != "undefined"){
+            invalidType = {
+              code: 400,
+              message: "La propiedad '"+at.properties[i].name+"' debe ser de tipo String."
+            };
+            res.status(400).json(invalidType);
+            return;
+          }
+          break;
+        case "Boolean":
+          if( dataType != "boolean" && dataType != "undefined"){
+            invalidType = {
+              code: 400,
+              message: "La propiedad '"+at.properties[i].name+"' debe ser de tipo Boolean."
+            };
+            res.status(400).json(invalidType);
+            return;
+          }
+          break;
+        case "Integer":
+          if(!isInt(req.body[at.properties[i].name]) && dataType != "undefined"){
+            invalidType = {
+              code: 400,
+              message: "La propiedad '"+at.properties[i].name+"' debe ser de tipo Integer."
+            };
+            res.status(400).json(invalidType);
+            return;
+          }
+          break;
+        case "Float":
+          if(!isFloat(req.body[at.properties[i].name]) && dataType != "undefined"){
+            invalidType = {
+              code: 400,
+              message: "La propiedad '"+at.properties[i].name+"' debe ser de tipo Float."
+            };
+            res.status(400).json(invalidType);
+            return;
+          }
+          break;
+        case "Date":
+          if(isNaN(Date.parse(req.body[at.properties[i].name])) && dataType != "undefined"){
+            invalidType = {
+              code: 400,
+              message: "La propiedad '"+at.properties[i].name+"' debe ser de tipo Date."
+            };
+            res.status(400).json(invalidType);
+            return;
+          }
+          break;
+        case "List":
+          if(  Object.prototype.toString.call( req.body[at.properties[i].name] ) !== '[object Array]' && dataType != "undefined"){
+            invalidType = {
+              code: 400,
+              message: "La propiedad '"+at.properties[i].name+"' debe ser de tipo List."
+            };
+            res.status(400).json(invalidType);
+            return;
+          }
+          break;
+        default:
       }
     }
 
@@ -216,8 +282,6 @@ function assetsPost(req, res) {
       res.status(400).json(invalidState);
       return;
     }
-    // 3.3 - Check data types
-
 
     newAsset.deleted = false;
     newAsset.typeId = req.body.typeId;
@@ -475,6 +539,30 @@ function assetVersionsGet(req, res) {
     });
   });
 }
+
+function isFloat(val) {
+  var floatRegex = /^-?\d+(?:[.]\d*?)?$/;
+  if (!floatRegex.test(val)){
+    return false;
+  }
+
+  val = parseFloat(val);
+  if (isNaN(val)){
+    return false;
+  }
+  return true;
+}
+
+function isInt(val) {
+  var intRegex = /^-?\d+$/;
+  if (!intRegex.test(val)){
+    return false;
+  }
+
+  var intVal = parseInt(val, 10);
+  return parseFloat(val) == intVal && !isNaN(intVal);
+}
+
 
 module.exports = {
   assetsGet: assetsGet,
