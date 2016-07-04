@@ -270,7 +270,7 @@ function assetsPost(req, res) {
     // 4 - Current state must be valid
     var isValidState = false;
     for (i = 0; i < at.lifeCycle.length; i++) {
-      if(req.body.estadoActual == at.lifeCycle[i].name){
+      if(req.body.estadoActual.toLowerCase() == at.lifeCycle[i].name.toLowerCase()){
         isValidState = true;
         break;
       }
@@ -506,13 +506,16 @@ function assetIdPut(req, res) {
               }
             }
 
-            // 4 - Current state must be valid
-            if(req.body.estadoActual){
+            // 4 - Current state must be valid. The transition must be allowed as well
+            if(req.body.estadoActual && req.body.estadoActual.toLowerCase() != asset.value.estadoActual.toLowerCase()){
               var isValidState = false;
+              var statesAllowed = [];
               for (i = 0; i < at.lifeCycle.length; i++) {
-                if(req.body.estadoActual == at.lifeCycle[i].name){
+                if(req.body.estadoActual.toLowerCase() == at.lifeCycle[i].name.toLowerCase()){
                   isValidState = true;
-                  break;
+                }
+                if(asset.value.estadoActual == at.lifeCycle[i].name){
+                  statesAllowed = at.lifeCycle[i].adjacents;
                 }
               }
               if(!isValidState){
@@ -521,6 +524,14 @@ function assetIdPut(req, res) {
                   message : "El estado '"+req.body.estadoActual+"' no existe en el ciclo de vida del activo."
                 };
                 res.status(400).json(invalidState);
+                return;
+              }
+              if(statesAllowed.indexOf(req.body.estadoActual) < 0){
+                var invalidTransition = {
+                  code : 400,
+                  message : "La transición al estado '"+req.body.estadoActual+"' no es posible desde el estado '"+asset.value.estadoActual+"'."
+                };
+                res.status(400).json(invalidTransition);
                 return;
               }
             }
