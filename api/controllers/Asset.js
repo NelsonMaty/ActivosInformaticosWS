@@ -191,7 +191,7 @@ function assetsPost(req, res) {
     for (var i = 0; i < at.properties.length; i++) {
       // 3.0.1 - All the required properties must be present
       if(at.properties[i].required){
-        if(typeof req.body[at.properties[i].name] === "undefined"){
+        if(typeof req.body[at.properties[i].name] === undefined){
           var missingParam = {
             code : 400,
             message : "La propiedad '"+at.properties[i].name+"' debe estar definida."
@@ -204,7 +204,7 @@ function assetsPost(req, res) {
       dataType = typeof req.body[at.properties[i].name];
       switch (at.properties[i].type) {
         case "String":
-          if( dataType != "string" && dataType != "undefined"){
+          if( dataType != "string" && dataType !== undefined){
             invalidType = {
               code: 400,
               message: "La propiedad '"+at.properties[i].name+"' debe ser de tipo String."
@@ -214,7 +214,7 @@ function assetsPost(req, res) {
           }
           break;
         case "Boolean":
-          if( dataType != "boolean" && dataType != "undefined"){
+          if( dataType !== "boolean" && dataType !== undefined){
             invalidType = {
               code: 400,
               message: "La propiedad '"+at.properties[i].name+"' debe ser de tipo Boolean."
@@ -224,7 +224,7 @@ function assetsPost(req, res) {
           }
           break;
         case "Integer":
-          if(!isInt(req.body[at.properties[i].name]) && dataType != "undefined"){
+          if(!isInt(req.body[at.properties[i].name]) && dataType !== undefined){
             invalidType = {
               code: 400,
               message: "La propiedad '"+at.properties[i].name+"' debe ser de tipo Integer."
@@ -234,7 +234,7 @@ function assetsPost(req, res) {
           }
           break;
         case "Float":
-          if(!isFloat(req.body[at.properties[i].name]) && dataType != "undefined"){
+          if(!isFloat(req.body[at.properties[i].name]) && dataType !== undefined){
             invalidType = {
               code: 400,
               message: "La propiedad '"+at.properties[i].name+"' debe ser de tipo Float."
@@ -244,7 +244,7 @@ function assetsPost(req, res) {
           }
           break;
         case "Date":
-          if(isNaN(Date.parse(req.body[at.properties[i].name])) && dataType != "undefined"){
+          if(isNaN(Date.parse(req.body[at.properties[i].name])) && dataType !== undefined){
             invalidType = {
               code: 400,
               message: "La propiedad '"+at.properties[i].name+"' debe ser de tipo Date."
@@ -254,7 +254,7 @@ function assetsPost(req, res) {
           }
           break;
         case "List":
-          if(  Object.prototype.toString.call( req.body[at.properties[i].name] ) !== '[object Array]' && dataType != "undefined"){
+          if( Object.prototype.toString.call( req.body[at.properties[i].name] ) !== '[object Array]' && dataType !== undefined){
             invalidType = {
               code: 400,
               message: "La propiedad '"+at.properties[i].name+"' debe ser de tipo List."
@@ -267,7 +267,11 @@ function assetsPost(req, res) {
       }
     }
 
-    // 4 - Current state must be valid
+    // 4.0 - If no current state is set, then use the default
+    if(typeof req.body.estadoActual === undefined){
+
+    }
+    // 4.1 - Current state must be valid
     var isValidState = false;
     for (i = 0; i < at.lifeCycle.length; i++) {
       if(req.body.estadoActual.toLowerCase() == at.lifeCycle[i].name.toLowerCase()){
