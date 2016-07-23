@@ -8,6 +8,7 @@
   "license": "",
   "main": "app.js",
   "dependencies": {
+    "async": "^2.0.0-rc.6",
     "express": "^4.12.3",
     "lodash": "^4.13.1",
     "mongoosastic": "^4.0.2",
