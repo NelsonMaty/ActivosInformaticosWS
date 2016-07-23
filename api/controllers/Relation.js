@@ -394,7 +394,8 @@ function formatRelations(rels, isIncoming) {
   var relations = [];
   rels.forEach(function (rel) {
     rel = rel.toObject();
-    rel.relationLabel = rel.relationTypeId.outLabel;
+    rel.outLabel = rel.relationTypeId.outLabel;
+    rel.inLabel = rel.relationTypeId.inLabel;
     delete rel.relationTypeId;
     if(!isIncoming){
       rel.relatedAsset = formatNode(rel.relatedAssetId);
