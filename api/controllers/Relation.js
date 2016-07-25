@@ -398,7 +398,7 @@ function formatRelations(rels, isIncoming) {
   return relations;
 }
 
-function buildTree(rootId, depth, resolve, reject) {
+function buildTree(rootId, parentId, depth, resolve, reject) {
   // 1 Response tree base structure.
   var tree = {
     id: rootId
@@ -426,8 +426,8 @@ function buildTree(rootId, depth, resolve, reject) {
       return;
     }
 
-  // 4 - Get outgoing relations
-    Relation.find({assetId:tree._id, isIncomingRel:false, deleted:false})
+  // 4 - Get outgoing relations, except for the parent! (we dont want a recursive reference)
+    Relation.find({assetId:tree._id, relatedAssetId:{'$ne':parentId},isIncomingRel:false, deleted:false})
     .populate({path:"relationTypeId"})
     .exec(function(err, rels){
       if(err){
@@ -439,34 +439,35 @@ function buildTree(rootId, depth, resolve, reject) {
       for (var i = 0; i < tree.relations.length; i++) {
         relationsPromises.push(
           new Promise(function (resolve, reject) {
-            buildTree(tree.relations[i].relatedAssetId, depth - 1, resolve, reject);
+            buildTree(tree.relations[i].relatedAssetId, rootId, depth - 1, resolve, reject);
           })
         );
       }
+      // Building the outgoing relations side of the tree first
       Promise.all(relationsPromises).then(
         function (responses) {
           for (var i = 0; i < tree.relations.length; i++) {
             delete tree.relations[i].relatedAssetId;
             tree.relations[i].relatedAsset = responses[i];
           }
-  // 5 - Get incoming relations
-          Relation.find({relatedAssetId:tree._id, isIncomingRel:false, deleted:false})
+  // 5 - Get incoming relations, except for the parent! (we dont want a recursive reference)
+          Relation.find({assetId:{'$ne':parentId }, relatedAssetId:tree._id, isIncomingRel:false, deleted:false})
           .populate({path:"relationTypeId"})
           .exec(function (err, incomRels) {
             if(err){
               reject({code:500, message: err});
               return;
             }
-            console.log(incomRels);
             tree.incomingRelations = formatRelations(incomRels, true);
             relationsPromises = [];
             for(i = 0; i < tree.incomingRelations.length; i++){
               relationsPromises.push(
                 new Promise(function (resolve, reject) {
-                  buildTree(tree.incomingRelations[i].relatedAssetId, depth - 1, resolve, reject);
+                  buildTree(tree.incomingRelations[i].relatedAssetId, rootId, depth - 1, resolve, reject);
                 })
               );
             }
+            // Building the incoming relations side of the tree last
             Promise.all(relationsPromises).then(
               function (responses) {
                 for (var i = 0; i < tree.incomingRelations.length; i++) {
@@ -503,7 +504,7 @@ function relationsTreeGet(req, res) {
   }
 
   var promise = new Promise(function(resolve, reject) {
-    buildTree(req.swagger.params.id.value, depth, resolve, reject);
+    buildTree(req.swagger.params.id.value, null, depth, resolve, reject);
   });
 
   promise.then(function (tree) {
