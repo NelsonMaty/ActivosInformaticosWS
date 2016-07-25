@@ -3,8 +3,6 @@
 var Relation = require('../models/Relation');
 var RelationType  = require('../models/RelationType');
 var Asset  = require('../models/Asset');
-var Async = require("async");
-
 
 var Util  = require('./Util');
 
@@ -378,18 +376,6 @@ function formatNode(node){
   return node;
 }
 
-// function populateAssetType(relatedAsset) {
-//   AssetType.findById(relatedAsset.typeId, function (err, at) {
-//     if(err){
-//       return;
-//     }
-//     relatedAsset.typeId = at.toObject();
-//     relatedAsset = formatNode(relatedAsset);
-//     console.log(relatedAsset);
-//     return relatedAsset;
-//   });
-// }
-
 function formatRelations(rels, isIncoming) {
   var relations = [];
   rels.forEach(function (rel) {
@@ -397,15 +383,9 @@ function formatRelations(rels, isIncoming) {
     rel.outLabel = rel.relationTypeId.outLabel;
     rel.inLabel = rel.relationTypeId.inLabel;
     delete rel.relationTypeId;
-    if(!isIncoming){
-      rel.relatedAsset = formatNode(rel.relatedAssetId);
-      delete rel.relatedAssetId;
+    if(isIncoming){
+      rel.relatedAssetId = rel.assetId;
     }
-    else {
-      rel.relatedAsset = formatNode(rel.assetId);
-      delete rel.assetId;
-    }
-    rel.relatedAsset.relations = [];
     delete rel.deleted;
     delete rel.isIncomingRel;
     delete rel.assetId;
@@ -415,70 +395,126 @@ function formatRelations(rels, isIncoming) {
     delete rel._id;
     relations.push(rel);
   });
-  // console.log(relations);
   return relations;
 }
 
-function buildTree(tree, depth, res) {
-  console.log(depth);
-  Relation.find({assetId:tree._id, isIncomingRel:false, deleted:false})
-  .populate({path:"relatedAssetId relationTypeId", populate:{path:"typeId",model:"AssetType",select:"name"}})
-  .exec(function(err, rels){
-    if(err){
-      res.status(500).json(err);
-      return;
-    }
-    tree.relations = formatRelations(rels, false);
-    // console.log(rels.length);
-  // console.log(JSON.stringify(tree, null, 4));
-  Relation.find({relatedAssetId:tree._id, isIncomingRel:false, deleted:false})
-  .populate({path:"assetId relationTypeId", populate:{path:"typeId",model:"AssetType",select:"name"}})
-    .exec(function (err, incomRels) {
-      if(err){
-        res.status(500).json(err);
-        return;
-      }
-      tree.incomingRelations = formatRelations(incomRels, true);
-      res.status(200).json(tree);
-    });
-  });
-}
-
-function relationsTreeGet(req, res) {
-  var depth;
-  if(req.swagger.params.depth.value){
-    depth = req.swagger.params.depth.value;
-  }
-  else {
-    depth = 1;
-  }
-  // 1 - Check if the source asset id provided is valid
-  if (!req.swagger.params.id.value.match(/^[0-9a-fA-F]{24}$/)){
-    resNotFound(res,"No se encontró ningun activo con id " + req.swagger.params.id.value );
-    return;
-  }
+function buildTree(rootId, depth, resolve, reject) {
+  // 1 Response tree base structure.
   var tree = {
-    id: req.swagger.params.id.value
+    id: rootId
   };
   tree.relations = [];
   tree.incomingRelations = [];
 
-  // 2 - Find asset by provided id
-  Asset.findById(req.swagger.params.id.value)
+  // 2 - Find asset (tree root) using the id provided
+  Asset.findById(rootId)
   .populate("typeId", "name")
   .exec(function (err, a) {
     if(err){
-      res.status(500).json(err);
+      reject({code:500, message: err});
       return;
     }
   // 3 - Check if the source asset exists
     if(a===null){
-      resNotFound(res,"No se encontró ningun activo con el id " + req.swagger.params.id.value );
+      reject({code:404, message:"No se encontró ningun activo con el id " + rootId});
       return;
     }
     tree = formatNode(a);
-    buildTree(tree, depth, res);
+
+    if(depth === 0){
+      resolve(tree);
+      return;
+    }
+
+  // 4 - Get outgoing relations
+    Relation.find({assetId:tree._id, isIncomingRel:false, deleted:false})
+    .populate({path:"relationTypeId"})
+    .exec(function(err, rels){
+      if(err){
+        reject({code:500, message: err});
+        return;
+      }
+      tree.relations = formatRelations(rels, false);
+      var relationsPromises = [];
+      for (var i = 0; i < tree.relations.length; i++) {
+        relationsPromises.push(
+          new Promise(function (resolve, reject) {
+            buildTree(tree.relations[i].relatedAssetId, depth - 1, resolve, reject);
+          })
+        );
+      }
+      Promise.all(relationsPromises).then(
+        function (responses) {
+          for (var i = 0; i < tree.relations.length; i++) {
+            delete tree.relations[i].relatedAssetId;
+            tree.relations[i].relatedAsset = responses[i];
+          }
+  // 5 - Get incoming relations
+          Relation.find({relatedAssetId:tree._id, isIncomingRel:false, deleted:false})
+          .populate({path:"relationTypeId"})
+          .exec(function (err, incomRels) {
+            if(err){
+              reject({code:500, message: err});
+              return;
+            }
+            console.log(incomRels);
+            tree.incomingRelations = formatRelations(incomRels, true);
+            relationsPromises = [];
+            for(i = 0; i < tree.incomingRelations.length; i++){
+              relationsPromises.push(
+                new Promise(function (resolve, reject) {
+                  buildTree(tree.incomingRelations[i].relatedAssetId, depth - 1, resolve, reject);
+                })
+              );
+            }
+            Promise.all(relationsPromises).then(
+              function (responses) {
+                for (var i = 0; i < tree.incomingRelations.length; i++) {
+                  delete tree.incomingRelations[i].relatedAssetId;
+                  tree.incomingRelations[i].relatedAsset = responses[i];
+                }
+                resolve(tree);
+              });
+          });
+        }
+      );
+    });
   });
+}
+
+// Relations tree function
+function relationsTreeGet(req, res) {
+
+  var depth;
+
+  // How deep the relation graph should go?
+  if(req.swagger.params.depth.value){
+    depth = req.swagger.params.depth.value;
+  }
+  // Default case
+  else {
+    depth = 1;
+  }
+
+  // Check if the source asset id provided is valid
+  if (!req.swagger.params.id.value.match(/^[0-9a-fA-F]{24}$/)){
+    resNotFound(res,"No se encontró ningun activo con id " + req.swagger.params.id.value );
+    return;
+  }
+
+  var promise = new Promise(function(resolve, reject) {
+    buildTree(req.swagger.params.id.value, depth, resolve, reject);
+  });
+
+  promise.then(function (tree) {
+    // tree was built successfully
+    res.status(200).json(tree);
+  }, function (err) {
+    // the tree couldnt be built
+    res.status(err.code).json(err);
+    return;
+  });
+
 }
 
 module.exports = {
