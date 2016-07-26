@@ -298,6 +298,14 @@ function assetsPost(req, res) {
     newAsset.typeId = req.body.typeId;
     delete req.body.typeId;
 
+    if(newAsset.stakeholders === undefined){
+      newAsset.stakeholders = [];
+    }
+    
+    if(newAsset.tags === undefined){
+      newAsset.tags = [];
+    }
+
     Util.extend(newAsset.value,req.body);
 
     newAsset.save(function (err, asset) {
