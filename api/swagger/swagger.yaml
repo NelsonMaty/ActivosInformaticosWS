@@ -18,6 +18,138 @@ consumes:
 produces:
   - application/json
 paths:
+  /roles:
+    x-swagger-router-controller: "Roles"
+    get:
+      tags:
+      - "Role"
+      summary: "Roles disponibles."
+      description: "Listado con todos los roles disponibles para ser asignados a personas, dado un activo"
+      operationId: "getRoles"
+      responses:
+        200:
+          description: "Listado con todos los roles disponibles"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Role"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Notification"
+    post:
+      tags:
+      - "Role"
+      summary: "Crear nuevo rol"
+      description: "Dar de alta un rol para asignar a pesonas relacionadas a activos"
+      operationId: "postRole"
+      parameters:
+      - in: "body"
+        name: "newRole"
+        description: "Rol a dar de alta en el sistema"
+        required: true
+        schema:
+          $ref: "#/definitions/NewRole"
+      responses:
+        201:
+          description: "Rol creado"
+          schema:
+            $ref: "#/definitions/Role"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Notification"
+        403:
+          description: "El rol ya existe"
+          schema:
+            $ref: "#/definitions/Notification"
+  /roles/{name}:
+    x-swagger-router-controller: "RelationType"
+    get:
+      tags:
+      - "Role"
+      summary: "Info de un rol"
+      description: "Información sobre un rol\n"
+      operationId: roleIdGet"
+      parameters:
+      - name: "name"
+        in: "path"
+        description: "Nombre del rol"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Rol según nombre"
+          schema:
+            $ref: "#/definitions/Role"
+        404:
+          description: "Recurso no encontrado"
+          schema:
+            $ref: "#/definitions/Notification"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Notification"
+    put:
+      tags:
+      - "Role"
+      summary: "Actualización de rol"
+      description: "Actualización de rol"
+      operationId: "roleIdPut"
+      parameters:
+      - name: "name"
+        in: "path"
+        description: "nombre del rol."
+        required: true
+        type: "string"
+      - in: "body"
+        name: "updateRole"
+        description: "Datos del rol para actualizar"
+        required: true
+        schema:
+          $ref: "#/definitions/Role"
+      responses:
+        200:
+          description: "Rol actualizado."
+          schema:
+            $ref: "#/definitions/Notification"
+        403:
+          description: "El rol ya existe"
+          schema:
+            $ref: "#/definitions/Notification"
+        404:
+          description: "Recurso no encontrado"
+          schema:
+            $ref: "#/definitions/Notification"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Notification"
+    delete:
+      tags:
+      - "Role"
+      summary: "Borrar un rol"
+      description: "Borrar un rol\n"
+      operationId: "rroleIdDelete"
+      parameters:
+      - name: "name"
+        in: "path"
+        description: "Nombre del rol."
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Rol borrado."
+          schema:
+            $ref: "#/definitions/Notification"
+        404:
+          description: "Recurso no encontrado"
+          schema:
+            $ref: "#/definitions/Notification"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Notification"
   /datatypes:
     x-swagger-router-controller: "Config"
     get:
@@ -57,36 +189,36 @@ paths:
           description: "Error interno del servidor"
           schema:
             $ref: "#/definitions/Notification"
-  /users:
-    x-swagger-router-controller: "User"
+  /stakeholders:
+    x-swagger-router-controller: "Stakeholder"
     get:
       tags:
-      - "User"
-      summary: "Consulta de usuarios"
-      description: "Listado de todos los usuarios autorizados a utlizar el servicio"
+      - "Stakeholder"
+      summary: "Consulta de personas"
+      description: "Listado de todos las personas capaces de relacionarse a un activo"
       operationId: "usersGet"
       parameters: []
       responses:
         200:
-          description: "Listado de usuarios"
+          description: "Listado de personas"
           schema:
             type: "array"
             items:
-              $ref: "#/definitions/User"
+              $ref: "#/definitions/Stakeholder"
         500:
           description: "Error interno del servidor"
           schema:
             $ref: "#/definitions/Notification"
     post:
       tags:
-      - "User"
-      summary: "Crear usuario"
-      description: "Dar de alta un usario dandole asi permiso para utlizar el servicio"
+      - "Stakeholder"
+      summary: "Crear persona"
+      description: "Dar de alta una persona, permitiendole asi relacionarse a un activo"
       operationId: "usersPost"
       parameters:
       - in: "body"
         name: "user"
-        description: "Usuario a dar de alta en el sistema"
+        description: "Persona a dar de alta en el sistema"
         required: true
         schema:
           $ref: "#/definitions/NewUser"
@@ -100,25 +232,25 @@ paths:
           description: "Error interno del servidor"
           schema:
             $ref: "#/definitions/Notification"
-  /users/{id}:
-    x-swagger-router-controller: "User"
+  /stakeholders/{id}:
+    x-swagger-router-controller: "Stakeholder"
     get:
       tags:
-      - "User"
-      summary: "Usuario"
-      description: "Usuario por identificador\n"
+      - "Stakeholder"
+      summary: "Person"
+      description: "Persona por identificador\n"
       operationId: "usersIdGet"
       parameters:
       - name: "id"
         in: "path"
-        description: "identificador del usuario."
+        description: "identificador de la persona."
         required: true
         type: "string"
       responses:
         200:
-          description: "Usuario por id."
+          description: "Persona por id."
           schema:
-            $ref: "#/definitions/User"
+            $ref: "#/definitions/Stakeholder"
         404:
           description: "Recurso no encontrado"
           schema:
@@ -129,25 +261,25 @@ paths:
             $ref: "#/definitions/Notification"
     put:
       tags:
-      - "User"
-      summary: "Usuario"
-      description: "Usuario por identificador\n"
+      - "Stakeholder"
+      summary: "Actualizar persona"
+      description: "Actualizar persona\n"
       operationId: "usersIdPut"
       parameters:
       - name: "id"
         in: "path"
-        description: "identificador del usuario."
+        description: "identificador de la persona."
         required: true
         type: "string"
       - in: "body"
         name: "user"
-        description: "Datos de usuario para actualizar"
+        description: "Datos de la persona para actualizar"
         required: true
         schema:
           $ref: "#/definitions/UpdateUser"
       responses:
         200:
-          description: "Usuario actualizado."
+          description: "Persona actualizada."
           schema:
             $ref: "#/definitions/Notification"
         404:
@@ -160,19 +292,19 @@ paths:
             $ref: "#/definitions/Notification"
     delete:
       tags:
-      - "User"
-      summary: "Usuario"
-      description: "Usuario por identificador\n"
+      - "Stakeholder"
+      summary: "Borrar persona"
+      description: "Borrar lógicamente una persona\n"
       operationId: "usersIdDelete"
       parameters:
       - name: "id"
         in: "path"
-        description: "identificador del usuario."
+        description: "identificador de la persona."
         required: true
         type: "string"
       responses:
         200:
-          description: "Usuario borrado."
+          description: "Persona borrada."
           schema:
             $ref: "#/definitions/Notification"
         404:
@@ -886,7 +1018,26 @@ paths:
     x-swagger-pipe: swagger_raw
 # complex objects have schema definitions
 definitions:
-  User:
+  Role:
+    type: "object"
+    required:
+      - name
+    properties:
+      name:
+        type: "string"
+        description: "Nombre del rol"
+      deleted:
+        type: "boolean"
+        description: "Indica si el rol se encuentra borrado o no."
+  NewRole:
+    type: "object"
+    required:
+      - name
+    properties:
+      name:
+        type: "string"
+        description: "Nombre del rol"
+  Stakeholder:
     type: "object"
     required:
       - _id
