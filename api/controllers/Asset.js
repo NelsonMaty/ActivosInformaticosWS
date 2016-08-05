@@ -16,14 +16,12 @@ var notFoundMessage = {
 };
 
 function getMongoQuery(stringQuery) {
-  console.log(stringQuery);
   var aux = JSON.parse(stringQuery);
   var formatedAttribute;
   for (var key in aux) {
     //if not an And-Or search
+    formatedAttribute = "value." + key;
     if(key[0]!="$"){
-      console.log(key);
-      formatedAttribute = "value." + key;
       if(typeof aux[key] == "string"){
           aux[formatedAttribute] = new RegExp(aux[key], "i");
       }
@@ -31,15 +29,16 @@ function getMongoQuery(stringQuery) {
         aux[formatedAttribute] = aux[key];
       }
       delete aux[key];
-      return aux;
     }
     else {
+      aux[formatedAttribute] = aux[key];
       for (var i = 0; i < aux[key].length; i++) {
         aux[key][i] = getMongoQuery(JSON.stringify(aux[key][i]));
       }
-      return aux;
+      delete aux[key];
     }
   }
+  return aux;
 }
 
 function assetsGet(req, res) {
@@ -57,7 +56,6 @@ function assetsGet(req, res) {
 
     //1.2 Format the request appropriately, acording to our mongodb structure
     var mongoQuery = getMongoQuery(req.swagger.params.patternSearch.value);
-
     //1.3 Perform the search
     Asset.find(mongoQuery, function(err, assets) {
       if(err){
@@ -301,7 +299,7 @@ function assetsPost(req, res) {
     if(newAsset.stakeholders === undefined){
       newAsset.stakeholders = [];
     }
-    
+
     if(newAsset.tags === undefined){
       newAsset.tags = [];
     }
