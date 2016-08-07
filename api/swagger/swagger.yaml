@@ -185,14 +185,14 @@ paths:
           description: "Error interno del servidor"
           schema:
             $ref: "#/definitions/Notification"
-  /stakeholders:
-    x-swagger-router-controller: "Stakeholder"
+  /persons:
+    x-swagger-router-controller: "Person"
     get:
       tags:
-      - "Stakeholder"
+      - "Person"
       summary: "Consulta de personas"
       description: "Listado de todos las personas capaces de relacionarse a un activo"
-      operationId: "usersGet"
+      operationId: "personsGet"
       parameters: []
       responses:
         200:
@@ -200,42 +200,41 @@ paths:
           schema:
             type: "array"
             items:
-              $ref: "#/definitions/Stakeholder"
+              $ref: "#/definitions/Person"
         500:
           description: "Error interno del servidor"
           schema:
             $ref: "#/definitions/Notification"
     post:
       tags:
-      - "Stakeholder"
+      - "Person"
       summary: "Crear persona"
       description: "Dar de alta una persona, permitiendole asi relacionarse a un activo"
-      operationId: "usersPost"
+      operationId: "personPost"
       parameters:
       - in: "body"
-        name: "user"
+        name: "person"
         description: "Persona a dar de alta en el sistema"
         required: true
         schema:
-          $ref: "#/definitions/NewUser"
+          $ref: "#/definitions/NewPerson"
       responses:
         201:
-          description: "Usuario creado"
+          description: "Persona creada"
           schema:
-            # a pointer to a definition
             $ref: "#/definitions/NewResource"
         500:
           description: "Error interno del servidor"
           schema:
             $ref: "#/definitions/Notification"
-  /stakeholders/{id}:
-    x-swagger-router-controller: "Stakeholder"
+  /persons/{id}:
+    x-swagger-router-controller: "Person"
     get:
       tags:
-      - "Stakeholder"
+      - "Person"
       summary: "Person"
       description: "Persona por identificador\n"
-      operationId: "usersIdGet"
+      operationId: "personIdGet"
       parameters:
       - name: "id"
         in: "path"
@@ -246,7 +245,7 @@ paths:
         200:
           description: "Persona por id."
           schema:
-            $ref: "#/definitions/Stakeholder"
+            $ref: "#/definitions/Person"
         404:
           description: "Recurso no encontrado"
           schema:
@@ -257,10 +256,10 @@ paths:
             $ref: "#/definitions/Notification"
     put:
       tags:
-      - "Stakeholder"
+      - "Person"
       summary: "Actualizar persona"
       description: "Actualizar persona\n"
-      operationId: "usersIdPut"
+      operationId: "personIdPut"
       parameters:
       - name: "id"
         in: "path"
@@ -268,11 +267,11 @@ paths:
         required: true
         type: "string"
       - in: "body"
-        name: "user"
+        name: "person"
         description: "Datos de la persona para actualizar"
         required: true
         schema:
-          $ref: "#/definitions/UpdateUser"
+          $ref: "#/definitions/UpdatePerson"
       responses:
         200:
           description: "Persona actualizada."
@@ -288,10 +287,10 @@ paths:
             $ref: "#/definitions/Notification"
     delete:
       tags:
-      - "Stakeholder"
+      - "Person"
       summary: "Borrar persona"
       description: "Borrar lógicamente una persona\n"
-      operationId: "usersIdDelete"
+      operationId: "personIdDelete"
       parameters:
       - name: "id"
         in: "path"
@@ -1042,7 +1041,7 @@ definitions:
       name:
         type: "string"
         description: "Nombre del rol"
-  Stakeholder:
+  Person:
     type: "object"
     required:
       - _id
@@ -1050,35 +1049,59 @@ definitions:
     properties:
       _id:
         type: "string"
-        description: "identificador único del usuario."
+        description: "identificador único de la persona."
       name:
         type: "string"
-        description: "Nombre de usuario."
+        description: "Nombre de la persona."
+      email:
+        type: "string"
+        description: "Correo electrónico de la persona"
+      phone:
+        type: "string"
+        description: "Número de teléfono de la persona"
       comment:
         type: "string"
-        description: "Comentario acerca del usuario."
+        description: "Comentario acerca de la persona."
       deleted:
         type: "boolean"
-        description: "Indica si se trata de un usuario ya eliminado o no."
-  UpdateUser:
-    required:
-      - comment
-    type: "object"
-    properties:
-      comment:
-        type: "string"
-        description: "Comentario acerca del usuario."
-  NewUser:
+        description: "Indica si se trata de una persona eliminada"
+  NewPerson:
     type: "object"
     required:
       - name
     properties:
       name:
         type: "string"
-        description: "Nombre de usuario."
+        description: "Nombre de la persona."
+      email:
+        type: "string"
+        description: "Correo electrónico de la persona"
+      phone:
+        type: "string"
+        description: "Número de teléfono de la persona"
       comment:
         type: "string"
-        description: "Comentario acerca del usuario."
+        description: "Comentario acerca de la persona."
+  UpdatePerson:
+    type: "object"
+    required:
+      - name
+    properties:
+      name:
+        type: "string"
+        description: "Nombre de la persona."
+      email:
+        type: "string"
+        description: "Correo electrónico de la persona"
+      phone:
+        type: "string"
+        description: "Número de teléfono de la persona"
+      comment:
+        type: "string"
+        description: "Comentario acerca de la persona."
+      deleted:
+        type: "boolean"
+        description: "Indica si se trata de una persona eliminada"
   RelationType:
     type: "object"
     required:

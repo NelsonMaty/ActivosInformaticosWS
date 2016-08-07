@@ -3,12 +3,12 @@
 var Role  = require('../models/Role.model');
 
 function getRoles(req, res) {
-  Role.find({},'-_id -__v',function (err, ats) {
+  Role.find({},'-_id -__v',function (err, roles) {
     if(err){
       res.status(500).json(err);
     }
     else {
-      res.status(200).json(ats);
+      res.status(200).json(roles);
     }
   });
 }
