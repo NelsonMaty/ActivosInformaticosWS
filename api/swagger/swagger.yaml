@@ -19,7 +19,7 @@ produces:
   - application/json
 paths:
   /roles:
-    x-swagger-router-controller: "Roles"
+    x-swagger-router-controller: "Role"
     get:
       tags:
       - "Role"
@@ -64,13 +64,13 @@ paths:
           schema:
             $ref: "#/definitions/Notification"
   /roles/{name}:
-    x-swagger-router-controller: "RelationType"
+    x-swagger-router-controller: "Role"
     get:
       tags:
       - "Role"
       summary: "Info de un rol"
       description: "Información sobre un rol\n"
-      operationId: roleIdGet"
+      operationId: "roleIdGet"
       parameters:
       - name: "name"
         in: "path"
@@ -107,14 +107,10 @@ paths:
         description: "Datos del rol para actualizar"
         required: true
         schema:
-          $ref: "#/definitions/Role"
+          $ref: "#/definitions/UpdateRole"
       responses:
         200:
           description: "Rol actualizado."
-          schema:
-            $ref: "#/definitions/Notification"
-        403:
-          description: "El rol ya existe"
           schema:
             $ref: "#/definitions/Notification"
         404:
@@ -130,7 +126,7 @@ paths:
       - "Role"
       summary: "Borrar un rol"
       description: "Borrar un rol\n"
-      operationId: "rroleIdDelete"
+      operationId: "roleIdDelete"
       parameters:
       - name: "name"
         in: "path"
@@ -1022,6 +1018,15 @@ definitions:
     type: "object"
     required:
       - name
+    properties:
+      name:
+        type: "string"
+        description: "Nombre del rol"
+      deleted:
+        type: "boolean"
+        description: "Indica si el rol se encuentra borrado o no."
+  UpdateRole:
+    type: "object"
     properties:
       name:
         type: "string"
