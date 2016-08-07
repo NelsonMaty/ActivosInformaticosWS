@@ -1,6 +1,6 @@
 'use strict';
 
-var RelationType  = require('../models/RelationType');
+var RelationType  = require('../models/RelationType.model');
 var Util  = require('./Util');
 
 

@@ -1,8 +1,8 @@
 'use strict';
 
-var Relation = require('../models/Relation');
-var RelationType  = require('../models/RelationType');
-var Asset  = require('../models/Asset');
+var Relation = require('../models/Relation.model');
+var RelationType  = require('../models/RelationType.model');
+var Asset  = require('../models/Asset.model');
 
 var Util  = require('./Util');
 

@@ -1,6 +1,6 @@
 'use strict';
 
-var AssetType  = require('../models/AssetType');
+var AssetType  = require('../models/AssetType.model');
 var Util  = require('./Util');
 var exec = require('child_process').exec;
 

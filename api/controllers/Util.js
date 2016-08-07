@@ -23,7 +23,6 @@ function mergeProperties(obj1,obj2){
 function extend(origin, add) {
   // Don't do anything if add isn't an object
   if (!add || typeof add !== 'object') {
-    console.log("Not an object type");
     return origin;
   }
   var keys = Object.keys(add);

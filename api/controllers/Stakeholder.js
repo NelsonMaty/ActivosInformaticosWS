@@ -1,6 +1,6 @@
 'use strict';
 
-var User  = require('../models/Stakeholder');
+var User  = require('../models/Stakeholder.model');
 
 /*
 Once you 'require' a module you can reference the things that it exports.  These are defined in module.exports.

@@ -1,10 +1,10 @@
 'use strict';
 
-var Asset  = require('../models/Asset');
-var Relation = require('../models/Relation');
+var Asset  = require('../models/Asset.model');
+var Relation = require('../models/Relation.model');
 var HistoryAsset = Asset.historyModel();
 var ObjectId = require('mongoose').Types.ObjectId;
-var AssetType  = require('../models/AssetType');
+var AssetType  = require('../models/AssetType.model');
 var Util = require('./Util');
 var exec = require('child_process').exec;
 var _ = require('lodash/core');
