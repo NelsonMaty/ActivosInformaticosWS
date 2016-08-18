@@ -8,7 +8,7 @@ function mergeProperties(obj1,obj2){
 }
 
 function personsGet(req, res) {
-  Person.find({},'-__v',function (err, persons) {
+  Person.find({deleted:false},'-__v -deleted',function (err, persons) {
     if(err){
       res.status(500).json(err);
     }
