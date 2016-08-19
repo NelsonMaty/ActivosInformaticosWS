@@ -3,10 +3,15 @@ var mongooseHistory = require('mongoose-history');
 var mongoosastic = require('mongoosastic');
 var Schema     = mongoose.Schema;
 
+var Stakeholder = new Schema({
+  personId : { type: Schema.Types.ObjectId, ref: 'People'},
+  role : String
+}, {_id:false});
 
 var Asset = new Schema({
-      typeId :   { type: Schema.Types.ObjectId, ref: 'AssetType'},
-     deleted :   Boolean,
+    typeId :   { type: Schema.Types.ObjectId, ref: 'AssetType'},
+   deleted :   Boolean,
+   stakeholders : [Stakeholder],
      value :   Schema.Types.Mixed
 },  { strict: false });
 

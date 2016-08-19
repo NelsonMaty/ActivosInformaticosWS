@@ -8,6 +8,8 @@ var AssetType  = require('../models/AssetType.model');
 var Util = require('./Util');
 var exec = require('child_process').exec;
 var _ = require('lodash/core');
+var Person  = require('../models/Person.model');
+var Role  = require('../models/Role.model');
 
 
 var notFoundMessage = {
@@ -151,6 +153,32 @@ function assetsGet(req, res) {
   }
 }
 
+function isStakeholderValid(stakeholder, resolve, reject) {
+  Person.findById(stakeholder.personId)
+  .exec(function (err, person) {
+    if(err){
+      reject({code:500, message: err});
+      return;
+    }
+    if(person === null){
+      reject({code:404, message:"No se encontró ninguna persona con id " + stakeholder.personId});
+      return;
+    }
+    Role.find({name: stakeholder.role})
+    .exec(function (err, role) {
+      if(err){
+        reject({code:500, message: err});
+        return;
+      }
+      if(role.length === 0){
+        reject({code:404, message:"No se encontró el rol " + stakeholder.role});
+        return;
+      }
+      resolve(1);
+    });
+  });
+}
+
 function assetsPost(req, res) {
   var newAsset = new Asset();
 
@@ -161,7 +189,7 @@ function assetsPost(req, res) {
   if (!req.body.typeId.match(/^[0-9a-fA-F]{24}$/)){
     var error = {
       code : 404,
-      message : "Tipo de activo no encontrada"
+      message : "Tipo de activo no encontrado"
     };
     res.status(404).json(error);
     return;
@@ -296,27 +324,58 @@ function assetsPost(req, res) {
     newAsset.typeId = req.body.typeId;
     delete req.body.typeId;
 
-    if(newAsset.stakeholders === undefined){
-      newAsset.stakeholders = [];
+    newAsset.stakeholders = [];
+    for (i = 0; i < req.body.stakeholders.length; i++) {
+      if (!req.body.stakeholders[i].personId.match(/^[0-9a-fA-F]{24}$/)){
+        res.status(404).json({code:404, message: "No se encontró ninguna persona con id '" + req.body.stakeholders[i].personId + "'"});
+        return;
+      }
+      newAsset.stakeholders.push({
+        role: req.body.stakeholders[i].role,
+        personId: new ObjectId(req.body.stakeholders[i].personId)
+      });
     }
+    delete req.body.stakeholders;
+
+    Util.extend(newAsset.value,req.body);
 
     if(newAsset.tags === undefined){
       newAsset.tags = [];
     }
 
-    Util.extend(newAsset.value,req.body);
+    var stakeholdersPromises = [];
 
-    newAsset.save(function (err, asset) {
-      if(err){
-        console.log(err);
-        res.status(500).json(err);
+    if(newAsset.stakeholders === undefined){
+      newAsset.stakeholders = [];
+    }
+
+    for (i = 0; i < newAsset.stakeholders.length; i++) {
+      stakeholdersPromises.push(
+        new Promise(function(resolve, reject) {
+          isStakeholderValid(newAsset.stakeholders[i], resolve, reject);
+        })
+      );
+    }
+    Promise.all(stakeholdersPromises).then(
+      function (ok) {
+
+        newAsset.save(function (err, asset) {
+          if(err){
+            console.log(err);
+            res.status(500).json(err);
+          }
+          else {
+            var response = {code:201, id:asset._id};
+            res.location('/assets/' + asset.id);
+            res.status(201).json(response);
+          }
+        });
+      },
+      function (reason) {
+        res.status(reason.code).json(reason);
+        return;
       }
-      else {
-        var response = {code:201, id:asset._id};
-        res.location('/assets/' + asset.id);
-        res.status(201).json(response);
-      }
-    });
+    );
   });
 }
 

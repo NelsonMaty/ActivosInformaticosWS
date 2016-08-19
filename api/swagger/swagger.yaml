@@ -1065,6 +1065,45 @@ definitions:
       deleted:
         type: "boolean"
         description: "Indica si se trata de una persona eliminada"
+  Stakeholder:
+    type: "object"
+    required:
+      - personId
+      - role
+    properties:
+      personId:
+        type: "string"
+        description: "identificador único de la persona."
+      role:
+        type: "string"
+        description: "Nombre del rol"
+      name:
+        type: "string"
+        description: "Nombre de la persona."
+      email:
+        type: "string"
+        description: "Correo electrónico de la persona"
+      phone:
+        type: "string"
+        description: "Número de teléfono de la persona"
+      comment:
+        type: "string"
+        description: "Comentario acerca de la persona."
+      deleted:
+        type: "boolean"
+        description: "Indica si se trata de una persona eliminada"
+  NewStakeholder:
+    type: "object"
+    required:
+      - personId
+      - role
+    properties:
+      personId:
+        type: "string"
+        description: "identificador único de la persona."
+      role:
+        type: "string"
+        description: "Nombre del rol"
   NewPerson:
     type: "object"
     required:
@@ -1261,6 +1300,11 @@ definitions:
       estadoActual:
         type: "string"
         description: nombre del estado actual del activo en su ciclo de vida
+      stakeholders:
+        description: "Arreglo de personas que participan en el activo, indicando su rol"
+        type: "array"
+        items:
+          $ref: "#/definitions/Stakeholder"
       anyProperty:
         type: ["string", "integer", "number", "boolean"]
         description: "Propiedad y valor. Pueden agregarse cuantas propiedades sean necesarias y del tipo que sean necesarias."
@@ -1294,6 +1338,11 @@ definitions:
   UpdateAsset:
     type: "object"
     properties:
+      stakeholders:
+        type: "array"
+        description: "Arreglo de personas que participan en el activo, indicando su rol"
+        items:
+          $ref: "#/definitions/NewStakeholder"
       anyProperty:
         type: ["string", "integer", "number", "boolean"]
         description: "Propiedad y valor. Pueden agregarse cuantas propiedades sean necesarias y del tipo que sean necesarias."
@@ -1364,6 +1413,11 @@ definitions:
       typeId:
         type: "string"
         description: id del tipo de activo
+      stakeholders:
+        description: "Arreglo de personas que participan en el activo, indicando su rol"
+        type: "array"
+        items:
+          $ref: "#/definitions/NewStakeholder"
       anyProperty:
         type: ["string", "integer", "number", "boolean"]
         description: "Propiedad y valor. Pueden agregarse cuantas propiedades sean necesarias y del tipo que sean necesarias."
