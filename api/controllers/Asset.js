@@ -137,7 +137,6 @@ function assetsGet(req, res) {
   // 4) Fourth case, a list of all assets has been requested (no searching needed)
   else {
     Asset.find({deleted:false})
-    .populate("stakeholders.personId")
     .exec(function (err, assets) {
     if(err){
       res.status(500).json(err);
@@ -149,7 +148,7 @@ function assetsGet(req, res) {
         response[i] = Util.extend(response[i], response[i].value);
         delete response[i].value;
       }
-      console.log(JSON.stringify(4, null, response));
+      console.log(JSON.stringify(response, null, 4));
       res.status(200).json(response);
     }
   });
@@ -613,16 +612,49 @@ function assetIdPut(req, res) {
               }
             }
 
-            Util.extend(asset.value, req.body);
-            asset.markModified("value");
-            asset.save(function(err) {
-              if (err){
-                res.status(500).json(err);
-              } else {
-                var response = {code:200, message:"El activo se ha actualizado correctamente."};
-                res.status(200).json(response);
+            if(req.body.stakeholders === undefined){
+              req.body.stakeholders = [];
+            }
+
+            for (i = 0; i < req.body.stakeholders.length; i++) {
+              if (!req.body.stakeholders[i].personId.match(/^[0-9a-fA-F]{24}$/)){
+                res.status(404).json({code:404, message: "No se encontró ninguna persona con id '" + req.body.stakeholders[i].personId + "'"});
+                return;
               }
-            });
+              asset.stakeholders.push({
+                role: req.body.stakeholders[i].role,
+                personId: new ObjectId(req.body.stakeholders[i].personId)
+              });
+            }
+
+            delete req.body.stakeholders;
+            Util.extend(asset.value, req.body);
+            var stakeholdersPromises = [];
+
+            for (i = 0; i < asset.stakeholders.length; i++) {
+              stakeholdersPromises.push(
+                new Promise(function(resolve, reject) {
+                  isStakeholderValid(asset.stakeholders[i], resolve, reject);
+                })
+              );
+            }
+            Promise.all(stakeholdersPromises).then(
+              function (ok) {
+                asset.markModified("value");
+                asset.save(function(err) {
+                  if (err){
+                    res.status(500).json(err);
+                  } else {
+                    var response = {code:200, message:"El activo se ha actualizado correctamente."};
+                    res.status(200).json(response);
+                  }
+                });
+              },
+              function (reason) {
+                res.status(reason.code).json(reason);
+                return;
+              }
+            );
           });
         }
       }
