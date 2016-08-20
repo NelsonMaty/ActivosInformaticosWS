@@ -4,7 +4,7 @@ var mongoosastic = require('mongoosastic');
 var Schema     = mongoose.Schema;
 
 var Stakeholder = new Schema({
-  personId : { type: Schema.Types.ObjectId, ref: 'People'},
+  personId : { type: Schema.Types.ObjectId, ref: 'Person'},
   role : String
 }, {_id:false});
 

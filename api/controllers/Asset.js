@@ -136,7 +136,9 @@ function assetsGet(req, res) {
 
   // 4) Fourth case, a list of all assets has been requested (no searching needed)
   else {
-    Asset.find({deleted:false}, function (err, assets) {
+    Asset.find({deleted:false})
+    .populate("stakeholders.personId")
+    .exec(function (err, assets) {
     if(err){
       res.status(500).json(err);
     }
@@ -147,6 +149,7 @@ function assetsGet(req, res) {
         response[i] = Util.extend(response[i], response[i].value);
         delete response[i].value;
       }
+      console.log(JSON.stringify(4, null, response));
       res.status(200).json(response);
     }
   });
@@ -325,6 +328,9 @@ function assetsPost(req, res) {
     delete req.body.typeId;
 
     newAsset.stakeholders = [];
+    if(req.body.stakeholders === undefined){
+      req.body.stakeholders = [];
+    }
     for (i = 0; i < req.body.stakeholders.length; i++) {
       if (!req.body.stakeholders[i].personId.match(/^[0-9a-fA-F]{24}$/)){
         res.status(404).json({code:404, message: "No se encontró ninguna persona con id '" + req.body.stakeholders[i].personId + "'"});
@@ -344,10 +350,6 @@ function assetsPost(req, res) {
     }
 
     var stakeholdersPromises = [];
-
-    if(newAsset.stakeholders === undefined){
-      newAsset.stakeholders = [];
-    }
 
     for (i = 0; i < newAsset.stakeholders.length; i++) {
       stakeholdersPromises.push(
