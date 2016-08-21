@@ -194,7 +194,7 @@ function personGetAssets(req, res) {
       res.status(404).json(error);
       return;
     }
-    Asset.find({"stakeholders":{$elemMatch:{personId:req.swagger.params.id.value}}},
+    Asset.find({"stakeholders":{$elemMatch:{personId:req.swagger.params.id.value}}, deleted:false},
       function (err, assets) {
         if(err){
           res.status(500).json(err);
