@@ -204,7 +204,7 @@ function personGetAssets(req, res) {
         var aux = {};
         for (var i = 0; i < assets.length; i++) {
           aux.asset = assets[i];
-          for (var j = 0; j < assets[j].stakeholders.length; j++) {
+          for (var j = 0; j < assets[i].stakeholders.length; j++) {
             if(assets[i].stakeholders[j].personId == req.swagger.params.id.value){
               aux.role = assets[i].stakeholders[j].role;
               response.push(aux);
