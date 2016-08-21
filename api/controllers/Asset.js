@@ -616,6 +616,7 @@ function assetIdPut(req, res) {
               req.body.stakeholders = [];
             }
 
+            asset.stakeholders = [];
             for (i = 0; i < req.body.stakeholders.length; i++) {
               if (!req.body.stakeholders[i].personId.match(/^[0-9a-fA-F]{24}$/)){
                 res.status(404).json({code:404, message: "No se encontró ninguna persona con id '" + req.body.stakeholders[i].personId + "'"});
