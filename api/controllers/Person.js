@@ -2,6 +2,7 @@
 
 var Person  = require('../models/Person.model');
 var Asset  = require('../models/Asset.model');
+var Util = require('./Util');
 
 function mergeProperties(obj1,obj2){
     for (var attrname in obj2) { obj1[attrname] = obj2[attrname]; }
@@ -203,10 +204,13 @@ function personGetAssets(req, res) {
         var response = [];
         var aux = {};
         for (var i = 0; i < assets.length; i++) {
-          aux.asset = assets[i];
+          aux.asset = assets[i].toJSON();
           for (var j = 0; j < assets[i].stakeholders.length; j++) {
             if(assets[i].stakeholders[j].personId == req.swagger.params.id.value){
               aux.role = assets[i].stakeholders[j].role;
+              aux.asset = Util.extend(aux.asset, aux.asset.value);
+              delete aux.asset.value;
+              console.log(aux);
               response.push(aux);
             }
           }
