@@ -1,6 +1,7 @@
 'use strict';
 
 var Person  = require('../models/Person.model');
+var Asset  = require('../models/Asset.model');
 
 function mergeProperties(obj1,obj2){
     for (var attrname in obj2) { obj1[attrname] = obj2[attrname]; }
@@ -170,10 +171,56 @@ function personIdDelete(req, res) {
   }
 }
 
+function personGetAssets(req, res) {
+  if (!req.swagger.params.id.value.match(/^[0-9a-fA-F]{24}$/)){
+    var error = {
+      code : 404,
+      message : "Persona no encontrada"
+    };
+    res.status(404).json(error);
+    return;
+  }
+  Person.findById(req.swagger.params.id.value,function(err, person) {
+    if (err){
+      console.log(err);
+      res.status(500).json(err);
+      return;
+    }
+    if(person===null){
+      var error = {
+        code : 404,
+        message : "Persona no encontrada"
+      };
+      res.status(404).json(error);
+      return;
+    }
+    Asset.find({"stakeholders":{$elemMatch:{personId:req.swagger.params.id.value}}},
+      function (err, assets) {
+        if(err){
+          res.status(500).json(err);
+          return;
+        }
+        var response = [];
+        var aux = {};
+        for (var i = 0; i < assets.length; i++) {
+          aux.asset = assets[i];
+          for (var j = 0; j < assets[j].stakeholders.length; j++) {
+            if(assets[i].stakeholders[j].personId == req.swagger.params.id.value){
+              aux.role = assets[i].stakeholders[j].role;
+              response.push(aux);
+            }
+          }
+        }
+        res.status(200).json(response);
+    });
+  });
+}
+
 module.exports = {
   personsGet: personsGet,
   personPost: personPost,
   personIdGet: personIdGet,
   personIdDelete: personIdDelete,
-  personIdPut: personIdPut
+  personIdPut: personIdPut,
+  personGetAssets: personGetAssets
 };

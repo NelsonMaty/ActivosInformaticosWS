@@ -310,6 +310,35 @@ paths:
           description: "Error interno del servidor"
           schema:
             $ref: "#/definitions/Notification"
+  /persons/{id}/assets:
+    x-swagger-router-controller: "Person"
+    get:
+      tags:
+      - "Person"
+      summary: "Activos relacionados a la persona"
+      description: "Listado con todos los activos relacionados con la persona, indicando su rol\n"
+      operationId: "personGetAssets"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "identificador de la persona."
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Listado de activos, indicando el rol de la persona."
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/AssetAndRole"
+        404:
+          description: "Recurso no encontrado"
+          schema:
+            $ref: "#/definitions/Notification"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Notification"
   /assetTypes:
     x-swagger-router-controller: "AssetType"
     get:
@@ -1462,4 +1491,11 @@ definitions:
         type: "integer"
         format: "int32"
       message:
+        type: "string"
+  AssetAndRole:
+    type: "object"
+    properties:
+      asset:
+        $ref: "#/definitions/Asset"
+      role:
         type: "string"
