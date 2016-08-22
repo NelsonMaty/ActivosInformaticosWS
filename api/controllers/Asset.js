@@ -583,7 +583,7 @@ function assetIdPut(req, res) {
             }
 
             // 4 - Current state must be valid. The transition must be allowed as well
-            if(req.body.estadoActual && req.body.estadoActual.toLowerCase() != asset.value.estadoActual.toLowerCase()){
+            if(!req.swagger.params.isRestore.value && req.body.estadoActual && req.body.estadoActual.toLowerCase() != asset.value.estadoActual.toLowerCase()){
               var isValidState = false;
               var statesAllowed = [];
               for (i = 0; i < at.lifeCycle.length; i++) {

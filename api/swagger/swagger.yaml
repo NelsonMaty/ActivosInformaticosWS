@@ -592,6 +592,11 @@ paths:
         description: "identificador del activo."
         required: true
         type: "string"
+      - name: "isRestore"
+        in: "query"
+        description: "Indica si se trata de una operacion de restauracion de version del activo."
+        required: false
+        type: "boolean"
       - in: "body"
         name: "asset"
         description: "Nuevos datos del activo"
