@@ -203,13 +203,16 @@ function personGetAssets(req, res) {
         }
         var response = [];
         for (var i = 0; i < assets.length; i++) {
-          response.push({});
-          response[i].asset = assets[i].toJSON();
           for (var j = 0; j < assets[i].stakeholders.length; j++) {
             if(assets[i].stakeholders[j].personId == req.swagger.params.id.value){
-              response[i].role = assets[i].stakeholders[j].role;
-              response[i].asset = Util.extend(response[i].asset, response[i].asset.value);
-              delete response[i].asset.value;
+              response.push(
+                {
+                  asset:assets[i].toJSON(),
+                  role:assets[i].stakeholders[j].role
+                }
+              );
+              response[response.length-1].asset = Util.extend(response[response.length-1].asset, response[response.length-1].asset.value);
+              delete response[response.length-1].asset.value;
             }
           }
         }
