@@ -1323,11 +1323,13 @@ definitions:
     properties:
       typeId:
         type: "string"
-          # - estadoActual
         description: id del tipo de activo
       id:
         type: "string"
         description: "identificador único"
+      name:
+        type: "string"
+        description: "nombre del activo"
       deleted:
         type: "boolean"
         description: "indica si el activo se encuentra borrado"
@@ -1372,6 +1374,9 @@ definitions:
   UpdateAsset:
     type: "object"
     properties:
+      name:
+        type: "string"
+        description: "nombre del activo"
       stakeholders:
         type: "array"
         description: "Arreglo de personas que participan en el activo, indicando su rol"
@@ -1442,8 +1447,11 @@ definitions:
     type: "object"
     required:
       - typeId
-      # - estadoActual
+      - name
     properties:
+      name:
+        type: "string"
+        description: "nombre del activo"
       typeId:
         type: "string"
         description: id del tipo de activo
