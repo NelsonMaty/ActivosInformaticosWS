@@ -5,6 +5,7 @@ var Schema     = mongoose.Schema;
 
 var Stakeholder = new Schema({
   personId : { type: Schema.Types.ObjectId, ref: 'Person'},
+  name: String,
   role : String
 }, {_id:false});
 
@@ -19,14 +20,15 @@ Asset.plugin(mongooseHistory);
 
 Asset.plugin(mongoosastic);
 
-module.exports = mongoose.model('Asset', Asset);
 
+module.exports = mongoose.model('Asset', Asset);
+//
 // var Asset2 = mongoose.model('Asset', Asset)
 //   , stream = Asset2.synchronize()
 //   , count = 0;
 //
-// stream.on('data', function(err, doc){
 //   count++;
+// stream.on('data', function(err, doc){
 // });
 // stream.on('close', function(){
 //   console.log('indexed ' + count + ' documents!');

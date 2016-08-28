@@ -97,6 +97,7 @@ function assetsGet(req, res) {
           // response[i].typeId = assets[i].typeId;
           // if(i == assets.length-1)
         }
+        console.log(response);
         res.status(200).json(response);
       }
     });
@@ -148,7 +149,6 @@ function assetsGet(req, res) {
         response[i] = Util.extend(response[i], response[i].value);
         delete response[i].value;
       }
-      console.log(JSON.stringify(response, null, 4));
       res.status(200).json(response);
     }
   });
@@ -166,6 +166,7 @@ function isStakeholderValid(stakeholder, resolve, reject) {
       reject({code:404, message:"No se encontró ninguna persona con id " + stakeholder.personId});
       return;
     }
+    stakeholder.name = person.name;
     Role.find({name: stakeholder.role})
     .exec(function (err, role) {
       if(err){
