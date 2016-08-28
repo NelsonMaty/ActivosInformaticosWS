@@ -81,7 +81,7 @@ function assetsGet(req, res) {
   else if(req.swagger.params.elasticSearch.value){
     Asset.search({
       query_string: {
-        query: req.swagger.params.elasticSearch.value
+        query: "*"+req.swagger.params.elasticSearch.value+"*"
       }
     }, function(err, results) {
       if(err){
