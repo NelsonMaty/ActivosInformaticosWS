@@ -701,6 +701,43 @@ paths:
           description: "Error interno del servidor"
           schema:
             $ref: "#/definitions/Notification"
+  /assets/{id}/subscriptions:
+    x-swagger-router-controller: "Asset"
+    post:
+      tags:
+        - "Asset"
+      summary: "Suscribir a un activo"
+      description: "Subscribir a notificaciones relacionadas al activo"
+      operationId: "assetSubscriptionPost"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "identifcador del activo del cual se quieren conocer las versiones"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "relation"
+        description: "Relacion a registrar en el sistema"
+        required: true
+        schema:
+          $ref: "#/definitions/Subscription"
+      responses:
+        201:
+          description: "Suscripción exitosa"
+          schema:
+            $ref: "#/definitions/Notification"
+        403:
+          description: "La suscripción ya existe"
+          schema:
+            $ref: "#/definitions/Notification"
+        404:
+          description: "Activo no encontrado"
+          schema:
+            $ref: "#/definitions/Notification"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Notification"
   /assets/{id}/relations:
     x-swagger-router-controller: "Relation"
     get:
@@ -1511,4 +1548,17 @@ definitions:
       asset:
         $ref: "#/definitions/Asset"
       role:
+        type: "string"
+  Subscription:
+    type: "object"
+    required:
+      - events
+      - urlCallback
+    properties:
+      events:
+        type: "array"
+        description: "Listado de eventos a los cual se suscribe. Los valores posibles son 'LIFE_CYCLE', 'DELETED'"
+        items:
+          type: "string"
+      urlCallback:
         type: "string"
