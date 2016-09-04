@@ -702,7 +702,7 @@ paths:
           schema:
             $ref: "#/definitions/Notification"
   /assets/{id}/subscriptions:
-    x-swagger-router-controller: "Asset"
+    x-swagger-router-controller: "Subscription"
     post:
       tags:
         - "Asset"
@@ -732,6 +732,10 @@ paths:
             $ref: "#/definitions/Notification"
         404:
           description: "Activo no encontrado"
+          schema:
+            $ref: "#/definitions/Notification"
+        422:
+          description: "Suscripción no válida"
           schema:
             $ref: "#/definitions/Notification"
         500:
