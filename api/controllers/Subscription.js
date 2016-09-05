@@ -4,7 +4,7 @@ var Subscription  = require('../models/Subscription.model');
 var ObjectId = require('mongoose').Types.ObjectId;
 var Asset  = require('../models/Asset.model');
 
-var urlExpression = new RegExp('^(?!mailto:)(?:(?:http|https|ftp)://)(?:\\S+(?::\\S*)?@)?(?:(?:(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[0-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|(?:(?:[a-z\\u00a1-\\uffff0-9]+-?)*[a-z\\u00a1-\\uffff0-9]+)(?:\\.(?:[a-z\\u00a1-\\uffff0-9]+-?)*[a-z\\u00a1-\\uffff0-9]+)*(?:\\.(?:[a-z\\u00a1-\\uffff]{2,})))|localhost)(?::\\d{2,5})?(?:(/|\\?|#)[^\\s]*)?$', 'i');
+var urlExpression = new RegExp('^(?:(?:http|https)://)(?:\\S+(?::\\S*)?@)?(?:(?:(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[0-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|(?:(?:[a-z\\u00a1-\\uffff0-9]+-?)*[a-z\\u00a1-\\uffff0-9]+)(?:\\.(?:[a-z\\u00a1-\\uffff0-9]+-?)*[a-z\\u00a1-\\uffff0-9]+)*(?:\\.(?:[a-z\\u00a1-\\uffff]{2,})))|localhost)(?::\\d{2,5})?(?:(/|\\?|#)[^\\s]*)?$', 'i');
 
 
 function assetSubscriptionPost(req, res) {
@@ -68,11 +68,9 @@ function assetSubscriptionPost(req, res) {
     newSubscription.callbackUrl = req.body.urlCallback;
 
     // 6 - Check if the subscrition was already created
-    console.log(req.body.callbackUrl);
     Subscription.find({assetId: new ObjectId(req.swagger.params.id.value), callbackUrl: req.body.urlCallback})
     .lean(false)
     .exec(function (err, subscritions) {
-      console.log(subscritions);
       if(err){
         res.status(500).json(err);
         return;
