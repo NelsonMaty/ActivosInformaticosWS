@@ -10,7 +10,7 @@ var exec = require('child_process').exec;
 var _ = require('lodash/core');
 var Person  = require('../models/Person.model');
 var Role  = require('../models/Role.model');
-
+var notifySubscribersLC = require('./Subscription').notifySubscribersLC;
 
 var notFoundMessage = {
   code : 404,
@@ -611,6 +611,8 @@ function assetIdPut(req, res) {
                 res.status(400).json(invalidTransition);
                 return;
               }
+              // Successful transition
+              notifySubscribersLC(req.swagger.params.id.value, asset.value.estadoActual, req.body.estadoActual);
             }
 
             if(req.body.stakeholders === undefined){

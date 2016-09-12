@@ -3,6 +3,7 @@
 var Subscription  = require('../models/Subscription.model');
 var ObjectId = require('mongoose').Types.ObjectId;
 var Asset  = require('../models/Asset.model');
+var request = require('request');
 
 var urlExpression = new RegExp('^(?:(?:http|https)://)(?:\\S+(?::\\S*)?@)?(?:(?:(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[0-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|(?:(?:[a-z\\u00a1-\\uffff0-9]+-?)*[a-z\\u00a1-\\uffff0-9]+)(?:\\.(?:[a-z\\u00a1-\\uffff0-9]+-?)*[a-z\\u00a1-\\uffff0-9]+)*(?:\\.(?:[a-z\\u00a1-\\uffff]{2,})))|localhost)(?::\\d{2,5})?(?:(/|\\?|#)[^\\s]*)?$', 'i');
 
@@ -97,6 +98,34 @@ function assetSubscriptionPost(req, res) {
   });
 }
 
+function callbackNotification(error, response, body) {
+  if (!error && response.statusCode == 200) {
+  }
+}
+
+function notifySubscribersLC(assetId, oldStatus, newStatus) {
+  Subscription.find({assetId:assetId, events:'LIFE_CYCLE'})
+  .lean(false)
+  .exec(
+    function(err, subscriptions){
+      for (var i = 0; i < subscriptions.length; i++) {
+        request.post(
+          subscriptions[i].callbackUrl,
+          { json: {
+            assetId: assetId,
+            reason:'LIFE_CYCLE',
+            timestamp: new Date(),
+            oldStatus: oldStatus,
+            newStatus: newStatus
+          } },
+          callbackNotification
+        );
+      }
+    }
+  );
+}
+
 module.exports = {
-  assetSubscriptionPost: assetSubscriptionPost
+  assetSubscriptionPost: assetSubscriptionPost,
+  notifySubscribersLC: notifySubscribersLC
 };
