@@ -13,6 +13,7 @@ var Node = new Schema({
   name : String,
   isInitial : Boolean,
   isFinal: Boolean,
+  isCritical: { type: Boolean, default: false },
   adjacents: [String],
   comment: String
 }, { _id: false });

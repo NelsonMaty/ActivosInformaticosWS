@@ -1309,6 +1309,9 @@ definitions:
       isFinal:
         type: "boolean"
         description: "Indica si el nodo es final. Pueden existir múltiples nodos finales en un ciclo de vida."
+      isCritical:
+        type: "boolean"
+        description: "Indica si el nodo es un estado critico."
       adjacents:
         type: "array"
         items:
