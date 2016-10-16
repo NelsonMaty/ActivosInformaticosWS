@@ -5,15 +5,18 @@ var SwaggerUi = require('swagger-tools/middleware/swagger-ui');
 
 var app = require('express')();
 var mongoose   = require('mongoose');
-mongoose.connect('mongodb://mongo@127.0.0.1:27017/itam');
+
+var config = require(process.env.CONF||'/etc/nodejs-config/itam.json');
+var connectionString = 'mongodb://' + config.mongodb.user + '@' + config.mongodb.host + ':' + config.mongodb.port + '/' + config.mongodb.dbname;
+mongoose.connect(connectionString);
 
 module.exports = app; // for testing
 
-var config = {
+var swaggerConfig = {
   appRoot: __dirname // required config
 };
 
-SwaggerExpress.create(config, function(err, swaggerExpress) {
+SwaggerExpress.create(swaggerConfig, function(err, swaggerExpress) {
   if (err) {throw err; }
 
   // add swagger-ui
@@ -22,9 +25,9 @@ SwaggerExpress.create(config, function(err, swaggerExpress) {
   // install middleware
   swaggerExpress.register(app);
 
-  var port = process.env.PORT || 10010;
+  var port = config.port;
   app.listen(port);
   console.log("Corriendo web service para activos informáticos.");
-  console.log("Documentación de la API disponible en http://localhost:10010/docs/");
+  console.log("Documentación de la API disponible en http://localhost:" + port + "/docs/");
 
 });

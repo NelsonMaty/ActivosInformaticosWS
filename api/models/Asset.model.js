@@ -18,7 +18,14 @@ var Asset = new Schema({
 
 Asset.plugin(mongooseHistory);
 
-Asset.plugin(mongoosastic);
+var config = require(process.env.CONF||'/etc/nodejs-config/itam.json').elasticsearch;
+var es = config.host + config.port;
+
+Asset.plugin(mongoosastic, {
+  hosts: [
+    config.host + ":" + config.port
+  ]
+});
 
 
 module.exports = mongoose.model('Asset', Asset);
