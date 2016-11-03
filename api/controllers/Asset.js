@@ -80,8 +80,18 @@ function assetsGet(req, res) {
   // 2) Second case, an Elastic Search has been requested
   else if(req.swagger.params.elasticSearch.value){
     Asset.search({
-      query_string: {
-        query: "*"+req.swagger.params.elasticSearch.value+"*"
+      bool: {
+        must: [{
+            query_string: {
+              query: "*"+req.swagger.params.elasticSearch.value+"*"
+            }
+          },
+          {
+              match: {
+                deleted: false
+            }
+          }
+        ]
       }
     }, function(err, results) {
       if(err){
@@ -438,34 +448,30 @@ function assetIdDelete(req, res) {
         return;
       }
       asset.deleted = true;
-      // save the asset
-      asset.save(function(err) {
+      //remove index from elastic search
+      asset.unIndex(function (err) {
         if (err){
-          res.status(500).json(notFoundMessage);
+          res.status(500).json(err);
           return;
         }
-        //delete all relations associated with asset
-        Relation.update(
-          {$or:[{assetId:req.swagger.params.id.value},{relatedAssetId:req.swagger.params.id.value}]},
-          {deleted:true},
-          {multi:true},
-          function (err) {
-            if (err){
-              res.status(500).json(notFoundMessage);
-              return;
-            }
-          });
-
-          //remove index from elastic search
-          asset.unIndex(function (err) {
-            if (err){
-              res.status(500).json(err);
-            }
-            else {
+        asset.save(function(err) {
+          if (err){
+            res.status(500).json(notFoundMessage);
+            return;
+          }
+          //delete all relations associated with asset
+          Relation.update(
+            {$or:[{assetId:req.swagger.params.id.value},{relatedAssetId:req.swagger.params.id.value}]},
+            {deleted:true},
+            {multi:true},
+            function (err) {
+              if (err){
+                res.status(500).json(notFoundMessage);
+                return;
+              }
               var response = {code:200, message:"El activo se ha eliminado correctamente."};
               res.status(200).json(response);
-            }
-            return;
+            });
           });
       });
     });
