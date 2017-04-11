@@ -3,7 +3,8 @@ info:
   version: 1.0.0
   title: API Activos Informáticos
 # during dev, should point to your local machine
-host: localhost:10010
+#host: localhost:10010
+host: activos-api.psi.unc.edu.ar
 # basePath prefixes all resource paths
 basePath: /
 #
