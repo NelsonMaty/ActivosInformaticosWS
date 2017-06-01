@@ -8,18 +8,18 @@
   "license": "",
   "main": "app.js",
   "dependencies": {
-    "express": "^4.12.3",
-    "lodash": "^4.13.1",
-    "mongoosastic": "^4.0.2",
+    "express": "4.15.2",
+    "lodash": "4.17.4",
+    "mongoosastic": "4.3.0",
     "mongoose": "4.3.7",
-    "mongoose-history": "^0.4.2",
-    "request": "^2.74.0",
-    "swagger-express-mw": "^0.1.0",
-    "swagger-tools": "^0.9.11"
+    "mongoose-history": "0.4.2",
+    "request": "2.81.0",
+    "swagger-express-mw": "0.1.0",
+    "swagger-tools": "0.9.16"
   },
   "devDependencies": {
-    "should": "^7.1.0",
-    "supertest": "^1.0.0"
+    "should": "7.1.1",
+    "supertest": "1.2.0"
   },
   "scripts": {
     "start": "swagger project start",
